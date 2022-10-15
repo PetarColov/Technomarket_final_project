@@ -36,6 +36,6 @@ public class Product {
     @ManyToOne
     private SubCategory subcategory;
 
-    @ManyToMany
-    private Set<Characteristic> characteristics;
+    @OneToMany(mappedBy = "product")
+    private Set<Chars> characteristics;
 }

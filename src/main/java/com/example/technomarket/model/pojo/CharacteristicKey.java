@@ -9,6 +9,7 @@ import java.io.Serializable;
 @Data
 @Embeddable
 public class CharacteristicKey implements Serializable {
+
     @Column(name = "product_id")
     private long productId;
 

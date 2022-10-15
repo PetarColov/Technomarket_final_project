@@ -17,6 +17,6 @@ public class ProductCategory {
     @Column(nullable = false)
     private String name;
 
-    @OneToMany
+    @OneToMany(mappedBy = "productCategory")
     private Set<SubCategory> subCategory;
 }

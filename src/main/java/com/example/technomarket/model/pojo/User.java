@@ -24,9 +24,6 @@ public class User {
     @Column(unique = true, nullable = false)
     private String email;
 
-    @OneToMany(mappedBy = "user")
-    private Set<Cart> cartUser;
-
     @Column(nullable = false)
     private String firstName;
 
@@ -37,7 +34,10 @@ public class User {
     private String address;
 
     @Column(nullable = false)
-    private LocalDate birthDate;
+    private String birthDate;
+
+    @OneToMany(mappedBy = "user")
+    private Set<Cart> cartUser;
 
     @ManyToOne
     private Role role;
