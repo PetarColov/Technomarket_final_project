@@ -3,6 +3,7 @@ package com.example.technomarket.model.pojo;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.util.Set;
 
 @Data
@@ -26,9 +27,20 @@ public class User {
     @OneToMany(mappedBy = "user")
     private Set<Cart> cartUser;
 
+    @Column(nullable = false)
+    private String firstName;
+
+    @Column(nullable = false)
+    private String lastName;
+
+    @Column(nullable = false)
+    private String address;
+
+    @Column(nullable = false)
+    private LocalDate birthDate;
+
     @ManyToOne
     private Role role;
-
 
     @ManyToMany(mappedBy = "usersSubscribed")
     private Set<Product> subscriptions;

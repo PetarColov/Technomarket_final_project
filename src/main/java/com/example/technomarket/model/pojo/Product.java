@@ -15,11 +15,17 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
+    @Column(nullable = false)
     private String name;
 
-    @Column
+    @Column(nullable = false)
     private BigDecimal price;
+
+    @Column(nullable = false)
+    private int amountLeft;
+
+    @ManyToOne
+    private Brand brandName;
 
     @OneToMany(mappedBy = "product")
     private Set<Cart> cartProduct;
@@ -28,5 +34,8 @@ public class Product {
     private Set<User> usersSubscribed;
 
     @ManyToOne
-    private ProductCategory category;
+    private SubCategory subcategory;
+
+    @ManyToMany
+    private Set<Characteristic> characteristics;
 }

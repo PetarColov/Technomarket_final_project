@@ -1,5 +1,6 @@
 package com.example.technomarket.model.pojo;
 
+import jdk.jfr.Category;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -15,4 +16,7 @@ public class SubCategory {
 
     @Column
     private String name;
+
+    @ManyToOne
+    private ProductCategory productCategory;
 }
