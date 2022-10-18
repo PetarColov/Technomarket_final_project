@@ -38,4 +38,8 @@ public class Product {
 
     @OneToMany(mappedBy = "product")
     private Set<Chars> characteristics;
+
+    @ManyToOne
+    @JoinColumn(name = "discount_id",nullable = false)
+    private Discount discount;
 }

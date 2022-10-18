@@ -1,7 +1,8 @@
 package com.example.technomarket.contoller;
 
 
-import com.example.technomarket.model.dto.RegisterDto;
+import com.example.technomarket.model.dto.UserRegisterDTO;
+import com.example.technomarket.model.dto.UserWithoutPasswordDTO;
 import com.example.technomarket.model.pojo.User;
 import com.example.technomarket.model.repository.UserRepository;
 import com.example.technomarket.services.UserService;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class UserController {
+public class UserController extends AbstractController {
 
     @Autowired
     private UserRepository userRepository;
@@ -23,16 +24,9 @@ public class UserController {
 
 
     @PostMapping("/register")
-    public User registerUser(@RequestBody RegisterDto dto){
+    public UserWithoutPasswordDTO registerUser(@RequestBody UserRegisterDTO dto){
 
-        boolean isValid = userService.vaidateData(dto);
 
-        User user = mapper.map(dto, User.class);
-
-        if (isValid){
-            userRepository.save(user);
-            return user;
-        }
 
         return null;
     }
