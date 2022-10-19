@@ -15,9 +15,6 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false)
-    private String username;
-
     @Column(nullable = false)
     private String password;
 
@@ -30,11 +27,12 @@ public class User {
     @Column(nullable = false)
     private String lastName;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String address;
 
+
     @Column(nullable = false)
-    private String birthDate;
+    private LocalDate dateOfBirth;
 
     @OneToMany(mappedBy = "user")
     private Set<Cart> cartUser;
