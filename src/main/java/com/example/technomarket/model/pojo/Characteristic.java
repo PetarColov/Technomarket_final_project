@@ -7,7 +7,7 @@ import java.util.Set;
 
 @Data
 @Entity
-@Table(name = "characteristics_main")
+@Table(name = "all_characteristics")
 public class Characteristic {
 
     @Id

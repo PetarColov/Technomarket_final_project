@@ -6,7 +6,7 @@ import javax.persistence.*;
 
 @Data
 @Entity
-@Table(name = "chars_middle")
+@Table(name = "chars_pairs")
 public class Chars {
 
     @EmbeddedId
@@ -21,6 +21,7 @@ public class Chars {
     @MapsId("characteristicId")
     @JoinColumn(name = "characteristic_id")
     private Characteristic characteristic;
-    
+
+    @Column(nullable = false)
     private String characteristicValue;
 }
