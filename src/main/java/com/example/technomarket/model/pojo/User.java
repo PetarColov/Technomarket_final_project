@@ -30,15 +30,14 @@ public class User {
     @Column(nullable = true)
     private String address;
 
+    @Column(nullable = false)
+    private boolean isAdmin;
 
     @Column(nullable = false)
     private LocalDate dateOfBirth;
 
     @OneToMany(mappedBy = "user")
     private Set<Cart> cartUser;
-
-    @ManyToOne
-    private Role role;
 
     @ManyToMany(mappedBy = "usersSubscribed")
     private Set<Product> subscriptions;

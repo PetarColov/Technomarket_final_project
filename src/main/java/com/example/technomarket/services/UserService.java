@@ -50,42 +50,40 @@ public class UserService {
 
          dto.setPassword(bCryptPasswordEncoder.encode(dto.getPassword()));
          User user = mapper.map(dto, User.class);
+         if(isFirstUser()){
+            user.setAdmin(true);
+         }
+         else{
+             user.setAdmin(false);
+         }
          userRepository.save(user);
          return mapper.map(user, UserWithoutPasswordDTO.class);
+    }
+
+    private boolean isFirstUser() {
+        return userRepository.count() == 0;
     }
 
     private boolean checkPasswordLength(UserRegisterDTO dto) {
         String password = dto.getPassword();
         String confirmPassword = dto.getConfirmPassword();
-        if (password.length() < 8 || confirmPassword.length() < 8){
-            return false;
-        }
-        return true;
+        return (password.length() < 8 || confirmPassword.length() < 8);
     }
 
     private boolean checkEmail(UserRegisterDTO dto){
         String userEmail = dto.getEmail();
         Optional<User> byEmail = userRepository.findByEmail(userEmail);
         String regex = "^(.+)@(.+)$";
-        if(!byEmail.isPresent() && Pattern.compile(regex).matcher(userEmail).matches()){
-            return true;
-        }
-        return false;
+        return (!byEmail.isPresent() && Pattern.compile(regex).matcher(userEmail).matches());
     }
 
     private boolean checkPassword(UserRegisterDTO dto){
         String password = dto.getPassword();
-        if(password.equals(dto.getConfirmPassword())){
-            return true;
-        }
-        return false;
+        return (password.equals(dto.getConfirmPassword()));
     }
 
     private boolean checkAge(UserRegisterDTO dto){
-        if(LocalDate.now().getYear() - dto.getDateOfBirth().getYear() >= 18){
-            return true;
-        }
-        return false;
+        return (LocalDate.now().getYear() - dto.getDateOfBirth().getYear() >= 18);
     }
 
     public UserWithoutPasswordDTO login(LoginDTO loginDTO) {

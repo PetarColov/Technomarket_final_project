@@ -8,15 +8,17 @@ import java.util.Set;
 @Data
 @Entity
 @Table(name = "categories")
-public class ProductCategory {
+public class Category {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long categoryId;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String name;
 
-    @OneToMany(mappedBy = "productCategory")
+    @OneToMany(mappedBy = "category")
     private Set<SubCategory> subCategory;
+
+
 }

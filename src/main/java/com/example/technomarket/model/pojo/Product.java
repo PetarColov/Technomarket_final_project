@@ -34,6 +34,7 @@ public class Product {
     private Set<User> usersSubscribed;
 
     @ManyToOne
+    @JoinColumn(name = "subcategory_id",nullable = false)
     private SubCategory subcategory;
 
     @OneToMany(mappedBy = "product")

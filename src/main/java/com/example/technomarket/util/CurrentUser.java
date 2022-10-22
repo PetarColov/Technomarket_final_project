@@ -13,14 +13,17 @@ public class CurrentUser {
     private Long id;
 
     private String email;
+    private boolean isAdmin;
 
     public void login(User user) {
         this.id = user.getId();
         this.email = user.getEmail();
+        this.isAdmin = user.isAdmin();
     }
 
     public void logout(){
         this.id = null;
         this.email = null;
+        this.isAdmin = false;
     }
 }

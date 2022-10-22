@@ -1,22 +1,26 @@
 package com.example.technomarket.model.pojo;
 
-import jdk.jfr.Category;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.util.Set;
 
 @Data
 @Entity
-@Table(name = "sub_categories")
+@Table(name = "subcategories")
 public class SubCategory {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long subcategoryId;
 
     @Column(nullable = false)
     private String name;
 
     @ManyToOne
-    private ProductCategory productCategory;
+    @JoinColumn(name = "category_id", nullable = false)
+    private Category category;
+
+    @OneToMany(mappedBy = "subcategory")
+    private Set<Product> products;
 }
