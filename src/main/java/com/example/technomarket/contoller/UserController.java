@@ -1,17 +1,15 @@
 package com.example.technomarket.contoller;
 
 
-import com.example.technomarket.model.dto.LoginDTO;
-import com.example.technomarket.model.dto.UserRegisterDTO;
-import com.example.technomarket.model.dto.UserWithoutPasswordDTO;
+import com.example.technomarket.model.dto.user.LoginDTO;
+import com.example.technomarket.model.dto.user.UserRegisterDTO;
+import com.example.technomarket.model.dto.user.UserWithoutPasswordDTO;
 import com.example.technomarket.model.exceptions.BadRequestException;
-import com.example.technomarket.model.pojo.User;
 import com.example.technomarket.model.repository.UserRepository;
 import com.example.technomarket.services.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -43,7 +41,7 @@ public class UserController extends AbstractController {
     }
 
     @PostMapping("/login")
-    public UserWithoutPasswordDTO loginUser(@Valid @RequestBody LoginDTO loginDTO, BindingResult bindingResult){
+    public UserWithoutPasswordDTO loginUser(@RequestBody @Valid LoginDTO loginDTO, BindingResult bindingResult){
 
         if (!bindingResult.hasErrors()){
             return userService.login(loginDTO);

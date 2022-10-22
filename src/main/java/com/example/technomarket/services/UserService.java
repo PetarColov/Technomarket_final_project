@@ -1,10 +1,9 @@
 package com.example.technomarket.services;
 
-import com.example.technomarket.model.dto.LoginDTO;
-import com.example.technomarket.model.dto.UserRegisterDTO;
-import com.example.technomarket.model.dto.UserWithoutPasswordDTO;
+import com.example.technomarket.model.dto.user.LoginDTO;
+import com.example.technomarket.model.dto.user.UserRegisterDTO;
+import com.example.technomarket.model.dto.user.UserWithoutPasswordDTO;
 import com.example.technomarket.model.exceptions.BadRequestException;
-import com.example.technomarket.model.exceptions.UnauthorizedException;
 import com.example.technomarket.model.pojo.User;
 import com.example.technomarket.model.repository.UserRepository;
 import com.example.technomarket.util.CurrentUser;
@@ -12,7 +11,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.BindingResult;
 
 import java.time.LocalDate;
 import java.util.Optional;
