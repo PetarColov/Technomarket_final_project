@@ -6,12 +6,11 @@ import com.example.technomarket.model.pojo.Product;
 import com.example.technomarket.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/product")
@@ -25,6 +24,13 @@ public class ProductController extends AbstractController {
         return productService.addProduct(productDTO);
     }
 
-
-
+    @PostMapping("/delete/{pid}")
+    public void deleteProduct(@PathVariable long pid, HttpServletResponse response){
+        productService.deleteProduct(pid);
+        try {
+            response.getWriter().println("Product was successfully deleted");
+        } catch (IOException e) {
+            System.out.println("Issue with deleting product " + e.getMessage());
+        }
+    }
 }

@@ -65,7 +65,7 @@ public class UserService {
     private boolean checkPasswordLength(UserRegisterDTO dto) {
         String password = dto.getPassword();
         String confirmPassword = dto.getConfirmPassword();
-        return (password.length() < 8 || confirmPassword.length() < 8);
+        return ((password.length() > 8 && password.length() < 20 )|| (confirmPassword.length() > 8 && confirmPassword.length() < 20));
     }
 
     private boolean checkEmail(UserRegisterDTO dto){
