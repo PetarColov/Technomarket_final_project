@@ -6,7 +6,7 @@ import javax.persistence.*;
 
 @Data
 @Entity
-@Table(name = "chars_pairs")
+@Table(name = "characteristic_pairs")
 public class Chars {
 
     @EmbeddedId

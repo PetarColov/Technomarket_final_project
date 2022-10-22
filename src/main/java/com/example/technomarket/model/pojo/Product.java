@@ -40,6 +40,6 @@ public class Product {
     private Set<Chars> characteristics;
 
     @ManyToOne
-    @JoinColumn(name = "discount_id",nullable = false)
+    @JoinColumn(name = "discount_id")
     private Discount discount;
 }

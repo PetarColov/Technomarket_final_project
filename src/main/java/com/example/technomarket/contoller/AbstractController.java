@@ -1,6 +1,6 @@
 package com.example.technomarket.contoller;
 
-import com.example.technomarket.model.dto.ErrorDTO;
+import com.example.technomarket.model.dto.errors.ErrorDTO;
 import com.example.technomarket.model.exceptions.BadRequestException;
 import com.example.technomarket.model.exceptions.NotFoundException;
 import com.example.technomarket.model.exceptions.UnauthorizedException;

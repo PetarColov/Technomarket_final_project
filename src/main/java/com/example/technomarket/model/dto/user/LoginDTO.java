@@ -1,4 +1,4 @@
-package com.example.technomarket.model.dto;
+package com.example.technomarket.model.dto.user;
 
 import lombok.Data;
 
