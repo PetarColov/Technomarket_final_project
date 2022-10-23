@@ -36,19 +36,6 @@ public class CategoryService {
         }
     }
 
-    //TODO
-//    public void updateCategory(long cid, CategoryWithNewNameDTO category) {
-//        Optional<Category> categoryOptional= categoryRepository.findCategoryByCategoryId(cid);
-//        if(categoryOptional.isPresent()){
-//            Category c = modelMapper.map(category, Category.class);
-//            c.setName(category.getNewCategoryName());
-//            categoryRepository.save(c);
-//        }
-//        else{
-//            throw new BadRequestException("No such category!");
-//        }
-//    }
-
     public void deleteCategory(long id) {
         Optional<Category> categoryOptional = categoryRepository.findCategoryByCategoryId(id);
         if(categoryOptional.isPresent()){
