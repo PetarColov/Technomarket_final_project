@@ -26,4 +26,13 @@ public class CurrentUser {
         this.email = null;
         this.isAdmin = false;
     }
+
+    public boolean checkAdmin(){
+        if (this.isAdmin){
+            if (this.id != null){
+                return true;
+            }
+        }
+        return false;
+    }
 }

@@ -32,7 +32,7 @@ public class ProductService {
         if (!validAmount(productDTO.getAmountLeft()) || !validPrice(productDTO.getPrice())) {
             throw new BadRequestException("Enter valid product data!");
         }
-        if (!currentUser.isAdmin() || currentUser.getId() == null) {
+        if (currentUser.checkAdmin()) {
             throw new UnauthorizedException("Method not allowed!");
         }
 
@@ -63,7 +63,7 @@ public class ProductService {
 
 
     public void deleteProduct(long pid) {
-        if (!currentUser.isAdmin() && currentUser.getId() != null) {
+        if (currentUser.checkAdmin()) {
             throw new UnauthorizedException("Method not allowed!");
         }
         Product byId = productRepository.findById(pid).orElseThrow(() -> new BadRequestException("Product not found!"));
