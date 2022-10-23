@@ -23,6 +23,7 @@ public class SubcategoryController extends AbstractController{
         return subcategoryService.showSubcategory(cid);
     }
 
+    //TODO: change URI
     @PostMapping("/{cid}/")
     public void addSubcategory(@PathVariable long cid, @RequestBody SubcategoryWithNameOnly subcategory, HttpServletResponse response){
         subcategoryService.addSubcategory(cid,subcategory);

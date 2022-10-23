@@ -10,6 +10,7 @@ public class ProductDTO {
     private int amountLeft;
     private String name;
     private BigDecimal price;
-    private String categoryName;
+    private String subcategoryName;
+    private String brandName;
 
 }

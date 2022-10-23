@@ -23,11 +23,11 @@ public class BrandService {
     private ModelMapper mapper;
 
     public void addBrand(AddBrandDTO brandDTO) {
-        if (currentUser.checkAdmin()) {
+        if (!currentUser.checkAdmin()) {
             throw new UnauthorizedException("Method not allowed!");
         }
 
-        Optional<Brand> byName = brandRepository.findByName(brandDTO.getBrandName());
+        Optional<Brand> byName = brandRepository.findByBrandName(brandDTO.getBrandName());
         if (byName.isEmpty()){
             Brand brand = mapper.map(brandDTO, Brand.class);
             brandRepository.save(brand);
