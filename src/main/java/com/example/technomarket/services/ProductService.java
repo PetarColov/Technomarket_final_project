@@ -1,15 +1,14 @@
 package com.example.technomarket.services;
 
 
-import com.example.technomarket.model.dto.product.ProductDTO;
+import com.example.technomarket.model.dto.product.AddProductDTO;
+import com.example.technomarket.model.dto.product.AddProductToCartDTO;
+import com.example.technomarket.model.dto.product.ProductInCartDTO;
+import com.example.technomarket.model.dto.product.ProductResponseDTO;
 import com.example.technomarket.model.exceptions.BadRequestException;
 import com.example.technomarket.model.exceptions.UnauthorizedException;
-import com.example.technomarket.model.pojo.Brand;
-import com.example.technomarket.model.pojo.Product;
-import com.example.technomarket.model.pojo.SubCategory;
-import com.example.technomarket.model.repository.BrandRepository;
-import com.example.technomarket.model.repository.ProductRepository;
-import com.example.technomarket.model.repository.SubcategoryRepository;
+import com.example.technomarket.model.pojo.*;
+import com.example.technomarket.model.repository.*;
 import com.example.technomarket.util.CurrentUser;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +23,10 @@ public class ProductService {
     @Autowired
     private ProductRepository productRepository;
     @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private CartRepository cartRepository;
+    @Autowired
     private SubcategoryRepository subcategoryRepository;
     @Autowired
     private ModelMapper mapper;
@@ -32,7 +35,7 @@ public class ProductService {
     @Autowired
     private BrandRepository brandRepository;
 
-    public ProductDTO addProduct(ProductDTO productDTO) {
+    public ProductResponseDTO addProduct(AddProductDTO productDTO) {
 
         if (!validAmount(productDTO.getAmountLeft()) || !validPrice(productDTO.getPrice())) {
             throw new BadRequestException("Enter valid product data!");
@@ -51,7 +54,7 @@ public class ProductService {
 
         Optional<Product> byName = productRepository.findByName(productDTO.getName());
 
-        ProductDTO p;
+        ProductResponseDTO p;
 
         if (byName.isPresent()) {
             Product existingProduct = byName.get();
@@ -71,7 +74,7 @@ public class ProductService {
             existingProduct.setBrandName(brand);
 
             productRepository.save(existingProduct);
-            p = mapper.map(existingProduct, ProductDTO.class);
+            p = mapper.map(existingProduct, ProductResponseDTO.class);
         } else {
             Product newProduct = mapper.map(productDTO, Product.class);
 
@@ -82,17 +85,17 @@ public class ProductService {
             newProduct.setBrandName(brand);
 
             productRepository.save(newProduct);
-            p = mapper.map(newProduct, ProductDTO.class);
+            p = mapper.map(newProduct, ProductResponseDTO.class);
         }
         return p;
     }
 
-    private Brand getBrandFromDB(ProductDTO productDTO) {
+    private Brand getBrandFromDB(AddProductDTO productDTO) {
         Brand brand = brandRepository.findByBrandName(productDTO.getBrandName()).get();
         return brand;
     }
 
-    private SubCategory getSubCategoryFromDB(ProductDTO productDTO) {
+    private SubCategory getSubCategoryFromDB(AddProductDTO productDTO) {
         return subcategoryRepository.findSubCategoryBySubcategoryName(productDTO.getSubcategoryName()).get();
     }
 
@@ -107,12 +110,15 @@ public class ProductService {
     }
 
 
-    public void deleteProduct(long pid) {
+    public ProductResponseDTO deleteProduct(long pid) {
         if (!currentUser.checkAdmin()) {
-            throw new UnauthorizedException("Method not allowed!");
+            throw new UnauthorizedException("You don`t have permission for this operation!");
         }
         Product byId = productRepository.findById(pid).orElseThrow(() -> new BadRequestException("Product not found!"));
         productRepository.delete(byId);
+
+        return mapper.map(byId, ProductResponseDTO.class);
+
     }
 
 
@@ -123,4 +129,30 @@ public class ProductService {
     private boolean validAmount(int amountLeft) {
         return amountLeft > 0;
     }
+
+    public ProductInCartDTO addToCart(AddProductToCartDTO addProductToCartDTO, long pid) {
+        if (currentUser.getId() == null){
+            throw new UnauthorizedException("User not logged in!");
+        }
+
+        Product product = productRepository.findById(pid).orElseThrow(() ->
+                new BadRequestException("Product with such id not found!"));
+
+        User user = userRepository.findById(currentUser.getId()).get();
+
+        CartKey cartKey = new CartKey(user.getId(), product.getId());
+
+        Cart cart = new Cart(cartKey, user, product, addProductToCartDTO.getQuantity());
+
+        user.getCartUser().add(cart);
+
+        product.getCartProduct().add(cart);
+
+        cartRepository.save(cart);
+
+        currentUser.addToCart(cart);
+
+        return new ProductInCartDTO(product.getName(), addProductToCartDTO.getQuantity());
+    }
+
 }

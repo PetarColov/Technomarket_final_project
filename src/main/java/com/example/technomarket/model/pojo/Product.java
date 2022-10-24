@@ -27,7 +27,7 @@ public class Product {
     @ManyToOne
     private Brand brandName;
 
-    @OneToMany(mappedBy = "product")
+    @OneToMany(mappedBy = "product", fetch = FetchType.EAGER)
     private Set<Cart> cartProduct;
 
     @ManyToMany

@@ -1,9 +1,8 @@
 package com.example.technomarket.services;
 
-import com.example.technomarket.model.dto.user.LoginDTO;
-import com.example.technomarket.model.dto.user.UserRegisterDTO;
-import com.example.technomarket.model.dto.user.UserWithoutPasswordDTO;
+import com.example.technomarket.model.dto.user.*;
 import com.example.technomarket.model.exceptions.BadRequestException;
+import com.example.technomarket.model.exceptions.UnauthorizedException;
 import com.example.technomarket.model.pojo.User;
 import com.example.technomarket.model.repository.UserRepository;
 import com.example.technomarket.util.CurrentUser;
@@ -99,5 +98,45 @@ public class UserService {
 
     public void logout() {
         currentUser.logout();
+    }
+
+    public UserWithoutPasswordDTO editUser(EditUserDTO editUserDTO) {
+
+        if (currentUser.getId() == null){
+            throw new UnauthorizedException("User not logged in!");
+        }
+
+        User byId = userRepository.findById(currentUser.getId()).get();
+
+        byId.setEmail(editUserDTO.getEmail());
+        byId.setFirstName(editUserDTO.getFirstName());
+        byId.setLastName(editUserDTO.getLastName());
+
+        userRepository.save(byId);
+
+        return mapper.map(byId, UserWithoutPasswordDTO.class);
+    }
+
+    public UserWithoutPasswordDTO changePassword(ChangePasswordDTO changePasswordDTO) {
+        if (currentUser.getId() == null){
+            throw new UnauthorizedException("User not logged in!");
+        }
+
+        User byId = userRepository.findById(currentUser.getId()).get();
+
+        if (!bCryptPasswordEncoder.matches(changePasswordDTO.getOldPassword(), byId.getPassword())){
+            throw new BadRequestException("Old password is wrong!");
+        }
+
+        if (!changePasswordDTO.getNewPassword().equals(changePasswordDTO.getConfirmPassword())){
+            throw new BadRequestException("Passwords does not match!");
+        }
+
+        byId.setPassword(bCryptPasswordEncoder.encode(changePasswordDTO.getNewPassword()));
+
+        userRepository.save(byId);
+
+        return mapper.map(byId, UserWithoutPasswordDTO.class);
+
     }
 }

@@ -1,10 +1,13 @@
 package com.example.technomarket.model.pojo;
 
-import lombok.Data;
+import lombok.*;
 
 import javax.persistence.*;
 
-@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
 @Entity
 @Table(name = "carts")
 public class Cart {
@@ -23,4 +26,6 @@ public class Cart {
     private Product product;
 
     private int quantity;
+
+
 }

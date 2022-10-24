@@ -22,15 +22,16 @@ public class BrandService {
     @Autowired
     private ModelMapper mapper;
 
-    public void addBrand(AddBrandDTO brandDTO) {
+    public Brand addBrand(AddBrandDTO brandDTO) {
         if (!currentUser.checkAdmin()) {
-            throw new UnauthorizedException("Method not allowed!");
+            throw new UnauthorizedException("You don`t have permission for this operation!");
         }
 
         Optional<Brand> byName = brandRepository.findByBrandName(brandDTO.getBrandName());
         if (byName.isEmpty()){
             Brand brand = mapper.map(brandDTO, Brand.class);
             brandRepository.save(brand);
+            return brand;
         }else {
             throw new BadRequestException("Brand already exist");
         }

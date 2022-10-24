@@ -1,9 +1,7 @@
 package com.example.technomarket.contoller;
 
 
-import com.example.technomarket.model.dto.user.LoginDTO;
-import com.example.technomarket.model.dto.user.UserRegisterDTO;
-import com.example.technomarket.model.dto.user.UserWithoutPasswordDTO;
+import com.example.technomarket.model.dto.user.*;
 import com.example.technomarket.model.exceptions.BadRequestException;
 import com.example.technomarket.model.repository.UserRepository;
 import com.example.technomarket.services.UserService;
@@ -49,11 +47,20 @@ public class UserController extends AbstractController {
         throw new BadRequestException("Enter valid credentials!");
     }
 
-
-
     @PostMapping("/logout")
     public void logoutUser(){
         userService.logout();
+    }
+
+
+    @PostMapping("/editProfile")
+    public UserWithoutPasswordDTO editUser(@RequestBody EditUserDTO editUserDTO){
+        return userService.editUser(editUserDTO);
+    }
+
+    @PostMapping("/change_password")
+    public UserWithoutPasswordDTO changePassword(@RequestBody ChangePasswordDTO changePasswordDTO){
+        return userService.changePassword(changePasswordDTO);
     }
 
 }
