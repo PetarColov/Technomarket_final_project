@@ -3,7 +3,9 @@ package com.example.technomarket.services;
 import com.example.technomarket.model.dto.user.*;
 import com.example.technomarket.model.exceptions.BadRequestException;
 import com.example.technomarket.model.exceptions.UnauthorizedException;
+import com.example.technomarket.model.pojo.Cart;
 import com.example.technomarket.model.pojo.User;
+import com.example.technomarket.model.repository.CartRepository;
 import com.example.technomarket.model.repository.UserRepository;
 import com.example.technomarket.util.CurrentUser;
 import org.modelmapper.ModelMapper;
@@ -12,8 +14,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -26,6 +32,8 @@ public class UserService {
     private BCryptPasswordEncoder bCryptPasswordEncoder;
     @Autowired
     private CurrentUser currentUser;
+    @Autowired
+    private CartRepository cartRepository;
 
     public UserWithoutPasswordDTO validateData(UserRegisterDTO dto) {
 
@@ -90,6 +98,12 @@ public class UserService {
         if (user.isPresent()){
             if (bCryptPasswordEncoder.matches(loginDTO.getPassword(), user.get().getPassword())){
                 currentUser.login(user.get());
+
+                List<Cart> cartByUserId = cartRepository.findAllByUserId(currentUser.getId());
+
+                Set<Cart> collect = new HashSet<>(cartByUserId);
+
+                currentUser.setCartUser(collect);
                 return mapper.map(user, UserWithoutPasswordDTO.class);
             }
         }

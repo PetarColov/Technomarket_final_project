@@ -16,8 +16,8 @@ public class CartController {
     private CartService cartService;
 
     @PostMapping("/remove/{pid}")
-    public ProductInCartDTO removeFromCart(@PathVariable long pid){
-       return cartService.removeFromCart(pid);
+    public void removeFromCart(@PathVariable long pid){
+       cartService.removeFromCart(pid);
     }
 
 }

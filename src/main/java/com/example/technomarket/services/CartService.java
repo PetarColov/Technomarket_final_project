@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Iterator;
 import java.util.Optional;
 
 @Service
@@ -22,16 +23,20 @@ public class CartService {
     private CurrentUser currentUser;
 
 
-    //TODO fix this
-    public ProductInCartDTO removeFromCart(long pid) {
+
+    @Transactional
+    public void removeFromCart(long pid) {
 
         CartKey cartKey = new CartKey(currentUser.getId(), pid);
 
-        Cart cart = cartRepository.removeAllById(cartKey).orElseThrow(() ->
-                new BadRequestException("Product does not exist in cart!"));
+        cartRepository.removeProductFromCart(cartKey);
 
-        currentUser.getCartUser().remove(cart);
+        Iterator<Cart> iterator = currentUser.getCartUser().iterator();
+        while (iterator.hasNext()){
+            Cart next = iterator.next();
+            iterator.remove();
+            System.out.println(next.getId().getProductId() + " " + next.getId().getUserId());
+        }
 
-        return new ProductInCartDTO(cart.getProduct().getName(), cart.getQuantity());
     }
 }
