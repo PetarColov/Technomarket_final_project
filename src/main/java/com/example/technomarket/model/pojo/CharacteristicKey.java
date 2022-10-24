@@ -15,7 +15,4 @@ public class CharacteristicKey implements Serializable {
 
     @Column(name = "characteristic_id")
     private long characteristicId;
-
-//    @Column
-//    private String characteristicValue;
 }
