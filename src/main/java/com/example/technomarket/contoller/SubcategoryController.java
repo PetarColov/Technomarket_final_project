@@ -1,5 +1,6 @@
 package com.example.technomarket.contoller;
 
+import com.example.technomarket.model.dto.subcategoryDTOs.ResponseSubcategoryDTO;
 import com.example.technomarket.model.dto.subcategoryDTOs.SubcategoryWithNewName;
 import com.example.technomarket.model.dto.subcategoryDTOs.SubcategoryWithNameOnly;
 import com.example.technomarket.model.repository.SubcategoryRepository;
@@ -26,32 +27,17 @@ public class SubcategoryController extends AbstractController{
 
     //TODO: change URI
     @PostMapping("/{cid}/")
-    public void addSubcategory(@PathVariable long cid, @RequestBody SubcategoryWithNameOnly subcategory, HttpServletResponse response){
-        subcategoryService.addSubcategory(cid,subcategory);
-        try {
-            response.getWriter().println("Subcategory was successfully added");
-        } catch (IOException e) {
-            System.out.println("Issue with subcategory response" + e.getMessage());
-        }
+    public ResponseSubcategoryDTO addSubcategory(@PathVariable long cid, @RequestBody SubcategoryWithNameOnly subcategory){
+       return subcategoryService.addSubcategory(cid,subcategory);
     }
 
     @PutMapping("/{cid}/")
-    public void editSubcategory(@PathVariable long cid, @RequestBody SubcategoryWithNewName subcategory, HttpServletResponse response){
-        subcategoryService.editSubcategory(cid, subcategory);
-        try {
-            response.getWriter().println("Subcategory was successfully edited");
-        } catch (IOException e) {
-            System.out.println("Issue with subcategory response" + e.getMessage());
-        }
+    public ResponseSubcategoryDTO editSubcategory(@PathVariable long cid, @RequestBody SubcategoryWithNewName subcategory){
+       return subcategoryService.editSubcategory(cid, subcategory);
     }
 
     @DeleteMapping("/{cid}/")
-    public void deleteSubcategory(@PathVariable long cid, @RequestBody SubcategoryWithNameOnly subcategory, HttpServletResponse response){
-        subcategoryService.deleteSubcategory(cid,subcategory);
-        try {
-            response.getWriter().println("Subcategory was successfully deleted");
-        } catch (IOException e) {
-            System.out.println("Issue with subcategory response" + e.getMessage());
-        }
+    public ResponseSubcategoryDTO deleteSubcategory(@PathVariable long cid, @RequestBody SubcategoryWithNameOnly subcategory){
+        return subcategoryService.deleteSubcategory(cid,subcategory);
     }
 }

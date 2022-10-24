@@ -1,5 +1,6 @@
 package com.example.technomarket.services;
 
+import com.example.technomarket.model.dto.subcategoryDTOs.ResponseSubcategoryDTO;
 import com.example.technomarket.model.dto.subcategoryDTOs.SubcategoryWithNameOnly;
 import com.example.technomarket.model.dto.subcategoryDTOs.SubcategoryWithNewName;
 import com.example.technomarket.model.exceptions.BadRequestException;
@@ -37,7 +38,7 @@ public class SubcategoryService {
         throw new BadRequestException("There is no such category!");
     }
 
-    public void addSubcategory(long cid, SubcategoryWithNameOnly subcategory) {
+    public ResponseSubcategoryDTO addSubcategory(long cid, SubcategoryWithNameOnly subcategory) {
         if(!currentUser.isAdmin()){
             throw new UnauthorizedException("Method not allowed!");
         }
@@ -48,6 +49,12 @@ public class SubcategoryService {
                 SubCategory subCategory = modelMapper.map(subcategory,SubCategory.class);
                 subCategory.setCategory(categoryOptional.get());
                 subcategoryRepository.save(subCategory);
+                Optional<SubCategory> s = subcategoryRepository.findSubCategoryBySubcategoryName(subcategory.getSubcategoryName());
+                ResponseSubcategoryDTO subcategoryDTO = null;
+                if(s.isPresent()){
+                    subcategoryDTO = modelMapper.map(s.get(), ResponseSubcategoryDTO.class);
+                }
+                return subcategoryDTO;
             }
             else{
                 throw new BadRequestException("Such subcategory already exists");
@@ -58,7 +65,7 @@ public class SubcategoryService {
         }
     }
 
-    public void editSubcategory(long cid, SubcategoryWithNewName subcategoryWithNewName){
+    public ResponseSubcategoryDTO editSubcategory(long cid, SubcategoryWithNewName subcategoryWithNewName){
         if(!currentUser.isAdmin()){
             throw new UnauthorizedException("Method not allowed!");
         }
@@ -69,16 +76,20 @@ public class SubcategoryService {
                 SubCategory subCategory = subCategoryOptional.get();
                 subCategory.setSubcategoryName(subcategoryWithNewName.getNewSubcategoryName());
                 SubCategory subCategory1 = modelMapper.map(subCategory,SubCategory.class);
+                ResponseSubcategoryDTO subcategoryDTO = modelMapper.map(subCategory1,ResponseSubcategoryDTO.class);
                 subcategoryRepository.save(subCategory1);
+                return subcategoryDTO;
+            }
+            else{
+                throw new BadRequestException("No such subcategory exists so that you can edit this subcategory");
             }
         }
         else{
             throw new BadRequestException("No such category exists so that you can edit this subcategory");
         }
-
     }
 
-    public void deleteSubcategory(long cid, SubcategoryWithNameOnly subcategoryWithNameOnly) {
+    public ResponseSubcategoryDTO deleteSubcategory(long cid, SubcategoryWithNameOnly subcategoryWithNameOnly) {
         if(!currentUser.isAdmin()){
             throw new UnauthorizedException("Method not allowed!");
         }
@@ -87,7 +98,9 @@ public class SubcategoryService {
             Optional<SubCategory> subCategoryOptional = subcategoryRepository.findSubCategoryBySubcategoryName(subcategoryWithNameOnly.getSubcategoryName());
             if(subCategoryOptional.isPresent()) {
                 SubCategory subCategory = modelMapper.map(subCategoryOptional, SubCategory.class);
+                ResponseSubcategoryDTO subcategoryDTO = modelMapper.map(subCategory,ResponseSubcategoryDTO.class);
                 subcategoryRepository.delete(subCategory);
+                return subcategoryDTO;
             }
             else{
                 throw new BadRequestException("No such category exists!");

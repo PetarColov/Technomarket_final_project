@@ -2,6 +2,7 @@ package com.example.technomarket.contoller;
 
 import com.example.technomarket.model.dto.categoryDTOs.CategoryWithNameOnlyDTO;
 import com.example.technomarket.model.dto.categoryDTOs.CategoryWithNewNameDTO;
+import com.example.technomarket.model.dto.categoryDTOs.ResponseCategoryDTO;
 import com.example.technomarket.model.pojo.Category;
 import com.example.technomarket.model.repository.CategoryRepository;
 import com.example.technomarket.services.CategoryService;
@@ -30,32 +31,17 @@ public class CategoryController extends AbstractController{
     }
 
     @PostMapping("/category")
-    public void addCategory(@RequestBody CategoryWithNameOnlyDTO category, HttpServletResponse response){
-        categoryService.addCategoryToList(category);
-        try {
-            response.getWriter().println("Category was successfully added");
-        } catch (IOException e) {
-            System.out.println("Issue with adding category response" + e.getMessage());
-        }
+    public ResponseCategoryDTO addCategory(@RequestBody CategoryWithNameOnlyDTO category){
+        return categoryService.addCategoryToList(category);
     }
 
     @PutMapping("/category/{cid}")
-    public void updateCategory(@PathVariable long cid, @RequestBody CategoryWithNewNameDTO category, HttpServletResponse response){
-        categoryService.updateCategory(cid, category);
-        try {
-            response.getWriter().println("Category was successfully updated");
-        } catch (IOException e) {
-            System.out.println("Issue with adding category response" + e.getMessage());
-        }
+    public ResponseCategoryDTO updateCategory(@PathVariable long cid, @RequestBody CategoryWithNewNameDTO category, HttpServletResponse response){
+        return categoryService.updateCategory(cid, category);
     }
 
     @DeleteMapping("/category/{cid}")
-    public void deleteCategory(@PathVariable long cid, HttpServletResponse response){
-        categoryService.deleteCategory(cid);
-        try {
-            response.getWriter().println("Category was successfully deleted");
-        } catch (IOException e) {
-            System.out.println("Issue with adding category response" + e.getMessage());
-        }
+    public ResponseCategoryDTO deleteCategory(@PathVariable long cid, HttpServletResponse response){
+        return categoryService.deleteCategory(cid);
     }
 }

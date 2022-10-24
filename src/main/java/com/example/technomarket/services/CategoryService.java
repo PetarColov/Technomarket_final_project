@@ -2,6 +2,7 @@ package com.example.technomarket.services;
 
 import com.example.technomarket.model.dto.categoryDTOs.CategoryWithNameOnlyDTO;
 import com.example.technomarket.model.dto.categoryDTOs.CategoryWithNewNameDTO;
+import com.example.technomarket.model.dto.categoryDTOs.ResponseCategoryDTO;
 import com.example.technomarket.model.exceptions.BadRequestException;
 import com.example.technomarket.model.exceptions.UnauthorizedException;
 import com.example.technomarket.model.pojo.Category;
@@ -34,21 +35,22 @@ public class CategoryService {
         return category.stream().map(c -> modelMapper.map(c, CategoryWithNameOnlyDTO.class)).collect(Collectors.toList());
     }
 
-    public void addCategoryToList(CategoryWithNameOnlyDTO category) {
+    public ResponseCategoryDTO addCategoryToList(CategoryWithNameOnlyDTO category) {
         if(!currentUser.isAdmin()){
             throw new UnauthorizedException("Method not allowed!");
         }
         Optional<Category> optionalCategory = categoryRepository.findCategoryByName(category.getCategoryName());
         if(category.getCategoryName() != null && optionalCategory.isEmpty()){
-            Category c = modelMapper.map(category, Category.class);
-            categoryRepository.save(c);
+            categoryRepository.save(modelMapper.map(category, Category.class));
+            Optional<Category> c1 = categoryRepository.findCategoryByName(category.getCategoryName());
+            return modelMapper.map(c1.get(),ResponseCategoryDTO.class);
         }
         else{
             throw new BadRequestException("Invalid name of the category");
         }
     }
 
-    public void deleteCategory(long id) {
+    public ResponseCategoryDTO deleteCategory(long id) {
         if(!currentUser.isAdmin()){
             throw new UnauthorizedException("Method not allowed!");
         }
@@ -57,14 +59,16 @@ public class CategoryService {
             List<SubCategory> subCategories = subcategoryRepository.findAllSubCategoryByCategory(categoryOptional.get());
             subcategoryRepository.deleteAll(subCategories);
             Category category = modelMapper.map(categoryOptional, Category.class);
+            ResponseCategoryDTO responseCategoryDTO = modelMapper.map(categoryOptional,ResponseCategoryDTO.class);
             categoryRepository.delete(category);
+            return responseCategoryDTO;
         }
         else{
             throw new BadRequestException("This category does not exist!");
         }
     }
 
-    public void updateCategory(long cid, CategoryWithNewNameDTO category) {
+    public ResponseCategoryDTO updateCategory(long cid, CategoryWithNewNameDTO category) {
         if(!currentUser.isAdmin()){
             throw new UnauthorizedException("Method not allowed!");
         }
@@ -73,7 +77,9 @@ public class CategoryService {
             Category category1 = categoryOptional.get();
             category1.setName(category.getNewCategoryName());
             Category c = modelMapper.map(category1, Category.class);
+            ResponseCategoryDTO responseCategoryDTO = modelMapper.map(category1,ResponseCategoryDTO.class);
             categoryRepository.save(c);
+            return responseCategoryDTO;
         }
         else{
             throw new BadRequestException("No such category!");
