@@ -1,10 +1,8 @@
 package com.example.technomarket.services;
 
 
-import com.example.technomarket.model.dto.product.AddProductDTO;
-import com.example.technomarket.model.dto.product.AddProductToCartDTO;
-import com.example.technomarket.model.dto.product.ProductInCartDTO;
-import com.example.technomarket.model.dto.product.ProductResponseDTO;
+import com.example.technomarket.model.dto.product.*;
+import com.example.technomarket.model.dto.subcategoryDTOs.SubcategoryWithNameOnly;
 import com.example.technomarket.model.exceptions.BadRequestException;
 import com.example.technomarket.model.exceptions.UnauthorizedException;
 import com.example.technomarket.model.pojo.*;
@@ -15,7 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductService {
@@ -155,4 +155,35 @@ public class ProductService {
         return new ProductInCartDTO(product.getName(), addProductToCartDTO.getQuantity());
     }
 
+    public ProductForClientDTO searchForProductByName(String product) {
+        Optional<Product> productOptional = productRepository.findByName(product);
+        if(productOptional.isPresent()){
+            return mapper.map(productOptional.get(),ProductForClientDTO.class);
+        }
+        else{
+            throw new BadRequestException("No such product was found!");
+        }
+    }
+
+    public List<ProductForClientDTO> sortProductsAscending(String subCategory) {
+        Optional<SubCategory> subCategoryOptional = subcategoryRepository.findSubCategoryBySubcategoryName(subCategory);
+        if(subCategoryOptional.isPresent()) {
+            List<Product> products = productRepository.findAllBySubcategoryOrderByPriceDesc(subCategoryOptional.get());
+            return products.stream().map(product -> mapper.map(product, ProductForClientDTO.class)).toList();
+        }
+        else{
+            throw new BadRequestException("No such subcategories!");
+        }
+    }
+
+    public List<ProductForClientDTO> sortProductsDescending(String subCategory) {
+        Optional<SubCategory> subCategoryOptional = subcategoryRepository.findSubCategoryBySubcategoryName(subCategory);
+        if(subCategoryOptional.isPresent()) {
+            List<Product> products = productRepository.findAllBySubcategoryOrderByPriceAsc(subCategoryOptional.get());
+            return products.stream().map(product -> mapper.map(product, ProductForClientDTO.class)).toList();
+        }
+        else{
+            throw new BadRequestException("No such subcategories!");
+        }
+    }
 }
