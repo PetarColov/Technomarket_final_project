@@ -37,7 +37,7 @@ public class Product {
     @JoinColumn(name = "subcategory_id")
     private SubCategory subcategory;
 
-    @OneToMany(mappedBy = "product")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "product", cascade = CascadeType.ALL)
     private Set<Chars> characteristics;
 
     @ManyToOne

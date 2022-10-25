@@ -1,10 +1,13 @@
 package com.example.technomarket.model.pojo;
 
-import lombok.Data;
+import lombok.*;
 
 import javax.persistence.*;
 
-@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
 @Entity
 @Table(name = "characteristic_pairs")
 public class Chars {

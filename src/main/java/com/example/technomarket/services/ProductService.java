@@ -1,6 +1,9 @@
 package com.example.technomarket.services;
 
 
+import com.example.technomarket.model.dto.characteristicDTOs.CharacteristicValueDTO;
+import com.example.technomarket.model.dto.characteristicDTOs.CharacteristicWithValueDTO;
+import com.example.technomarket.model.dto.characteristicDTOs.ResponseCharacteristicDTO;
 import com.example.technomarket.model.dto.product.*;
 import com.example.technomarket.model.dto.subcategoryDTOs.SubcategoryWithNameOnly;
 import com.example.technomarket.model.exceptions.BadRequestException;
@@ -13,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -33,7 +37,11 @@ public class ProductService {
     @Autowired
     private CurrentUser currentUser;
     @Autowired
+    private CharacteristicRepository characteristicRepository;
+    @Autowired
     private BrandRepository brandRepository;
+    @Autowired
+    private ProductsWithCharacteristicsRepository productsWithCharacteristicsRepository;
 
     public ProductResponseDTO addProduct(AddProductDTO productDTO) {
 
@@ -184,6 +192,38 @@ public class ProductService {
         }
         else{
             throw new BadRequestException("No such subcategories!");
+        }
+    }
+
+    public ProductWithCharacteristicsDTO addCharacteristic(long pid, CharacteristicWithValueDTO characteristic) {
+        if(!currentUser.isAdmin()){
+            throw new UnauthorizedException("You don`t have permission for this operation!");
+        }
+
+        String characteristicName = characteristic.getCharacteristic().getCharacteristicName();
+        Optional<Product> productOptional = productRepository.findById(pid);
+        Optional<Characteristic> characteristicOptional = characteristicRepository.findCharacteristicByCharacteristicName(characteristicName);
+
+        if(productOptional.isPresent() && characteristicOptional.isPresent()){
+            Product product = productOptional.get();
+            Characteristic characteristic1 = characteristicOptional.get();
+            String charValue = characteristic.getCharacteristicValue();
+
+            CharacteristicKey characteristicKey = new CharacteristicKey(product.getId(), characteristic1.getId());
+            Chars chars = new Chars(characteristicKey, product, characteristic1, charValue);
+            productsWithCharacteristicsRepository.save(chars);
+            product.getCharacteristics().add(chars);
+
+            List<Chars> charsList = productsWithCharacteristicsRepository.findAllByProduct(product);
+            List<CharacteristicValueDTO> characteristicDTOS = charsList.stream().map(c -> mapper.map(c, CharacteristicValueDTO.class)).toList();
+            ProductWithCharacteristicsDTO product1 = new ProductWithCharacteristicsDTO(product.getName(), new ArrayList<>());
+            for(CharacteristicValueDTO chars1 : characteristicDTOS){
+                product1.getCharacteristicValues().add(chars1.getCharacteristicValue());
+            }
+            return product1;
+        }
+        else{
+            throw new BadRequestException("No such product or characteristic!");
         }
     }
 }

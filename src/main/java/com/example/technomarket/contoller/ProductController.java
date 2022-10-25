@@ -1,5 +1,6 @@
 package com.example.technomarket.contoller;
 
+import com.example.technomarket.model.dto.characteristicDTOs.CharacteristicWithValueDTO;
 import com.example.technomarket.model.dto.product.*;
 import com.example.technomarket.model.exceptions.BadRequestException;
 import com.example.technomarket.model.pojo.Product;
@@ -49,4 +50,10 @@ public class ProductController extends AbstractController {
     public List<ProductForClientDTO> sortProductsDescending(@PathVariable String subcategory){
         return productService.sortProductsDescending(subcategory);
     }
+
+    @PostMapping("/{pid}/addchar")
+    public ProductWithCharacteristicsDTO addCharacteristic(@PathVariable long pid, @RequestBody CharacteristicWithValueDTO characteristic){
+        return productService.addCharacteristic(pid, characteristic);
+    }
+
 }

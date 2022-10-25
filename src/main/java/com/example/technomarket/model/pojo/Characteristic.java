@@ -17,6 +17,6 @@ public class Characteristic {
     @Column(nullable = false)
     private String characteristicName;
 
-    @OneToMany(mappedBy = "characteristic")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "characteristic", cascade = CascadeType.ALL)
     private Set<Chars> characteristics;
 }
