@@ -18,7 +18,7 @@ public class SubCategory {
     private String subcategoryName;
 
     @ManyToOne
-    @JoinColumn(name = "category_id", nullable = false)
+    //@JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
     @OneToMany(mappedBy = "subcategory")

@@ -4,6 +4,7 @@ import lombok.Data;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -30,11 +31,11 @@ public class Product {
     @OneToMany(mappedBy = "product", fetch = FetchType.EAGER)
     private Set<Cart> cartProduct;
 
-    @ManyToMany
-    private Set<User> usersSubscribed;
+    @ManyToMany(fetch = FetchType.EAGER)
+    private List<User> usersSubscribed;
 
     @ManyToOne
-    @JoinColumn(name = "subcategory_id")
+    //@JoinColumn(name = "subcategory_id")
     private SubCategory subcategory;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "product", cascade = CascadeType.ALL)

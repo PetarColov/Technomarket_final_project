@@ -3,17 +3,25 @@ package com.example.technomarket.services;
 import com.example.technomarket.model.dto.discounts.DiscountProductsDTO;
 import com.example.technomarket.model.dto.discounts.RequestDiscountDTO;
 import com.example.technomarket.model.dto.discounts.ResponseDiscountDTO;
+import com.example.technomarket.model.dto.notifications.SetNotificationDTO;
 import com.example.technomarket.model.dto.product.ProductForClientDTO;
 import com.example.technomarket.model.exceptions.BadRequestException;
+import com.example.technomarket.model.exceptions.UnauthorizedException;
 import com.example.technomarket.model.pojo.Discount;
+import com.example.technomarket.model.pojo.Notification;
 import com.example.technomarket.model.pojo.Product;
+import com.example.technomarket.model.pojo.User;
 import com.example.technomarket.model.repository.DiscountRepository;
+import com.example.technomarket.model.repository.NotificationRepository;
 import com.example.technomarket.model.repository.ProductRepository;
+import com.example.technomarket.model.repository.UserRepository;
+import com.example.technomarket.util.CurrentUser;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -27,7 +35,13 @@ public class DiscountService {
     @Autowired
     ProductRepository productRepository;
     @Autowired
+    UserRepository userRepository;
+    @Autowired
     ModelMapper modelMapper;
+    @Autowired
+    private CurrentUser currentUser;
+    @Autowired
+    private NotificationRepository notificationRepository;
 
     private Product getProduct(Long pid){
         Optional<Product> product = productRepository.findById(pid);
@@ -39,6 +53,11 @@ public class DiscountService {
     }
 
     public ResponseDiscountDTO addDiscount(RequestDiscountDTO requestDiscountDTO) {
+
+        if(!currentUser.isAdmin()){
+            throw new UnauthorizedException("You don`t have permission for this operation!");
+        }
+
         int discountPercent = requestDiscountDTO.getDiscountPercent();
         String discountDescription = requestDiscountDTO.getDiscountDescription();
 
@@ -54,6 +73,11 @@ public class DiscountService {
     }
 
     public ResponseDiscountDTO addProductsForDiscount(DiscountProductsDTO discountProductsDTO) {
+
+        if(!currentUser.isAdmin()){
+            throw new UnauthorizedException("You don`t have permission for this operation!");
+        }
+
         List<Long> productIds = discountProductsDTO.getProducts();
         int discountPercent = discountProductsDTO.getDiscountPercent();
         String discountDescription = discountProductsDTO.getDiscountDescription();
@@ -63,6 +87,14 @@ public class DiscountService {
             Discount discount = discountOptional.get();
             for(Long pid : productIds){
                 Product p = getProduct(pid);
+                List<User> usersSubscribed = p.getUsersSubscribed();
+                for (User user : usersSubscribed) {
+                    Notification map = modelMapper.map(new SetNotificationDTO(setMessageToNotify(p, discount), LocalDateTime.now()), Notification.class);
+                    map.getNotifiedUser().add(user);
+                    user.getNotifications().add(map);
+                    notificationRepository.save(map);
+                    userRepository.save(user);
+                }
                 p.setDiscount(discount);
                 productRepository.save(p);
             }
@@ -72,5 +104,9 @@ public class DiscountService {
         else{
             throw new BadRequestException("This discount does not exists");
         }
+    }
+
+    private String setMessageToNotify(Product p, Discount discount) {
+        return p.getName() + " is on sale until " + discount.getEndedAt().toString();
     }
 }

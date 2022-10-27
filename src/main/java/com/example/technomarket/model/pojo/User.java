@@ -4,6 +4,7 @@ import lombok.Data;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -39,6 +40,9 @@ public class User {
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     private Set<Cart> cartUser;
 
-    @ManyToMany(mappedBy = "usersSubscribed")
-    private Set<Product> subscriptions;
+    @ManyToMany(mappedBy = "usersSubscribed", fetch = FetchType.EAGER)
+    private List<Product> subscriptions;
+
+    @ManyToMany(mappedBy = "notifiedUser", fetch = FetchType.EAGER)
+    private Set<Notification> notifications;
 }

@@ -4,6 +4,7 @@ import com.example.technomarket.model.dto.characteristicDTOs.CharacteristicValue
 import com.example.technomarket.model.dto.characteristicDTOs.CharacteristicWithValueDTO;
 import com.example.technomarket.model.dto.product.*;
 import com.example.technomarket.model.exceptions.BadRequestException;
+import com.example.technomarket.model.exceptions.NotFoundException;
 import com.example.technomarket.model.exceptions.UnauthorizedException;
 import com.example.technomarket.model.pojo.*;
 import com.example.technomarket.model.repository.*;
@@ -237,5 +238,27 @@ public class ProductService {
     public ProductForClientDTO getProduct(long pid) {
         Product product = productRepository.findById(pid).orElseThrow(() -> new BadRequestException("No such product!"));
         return mapper.map(product, ProductForClientDTO.class);
+    }
+
+
+
+    public ProductWithNameDTO subscribeForProduct(long pid) {
+        if (currentUser.getId() == null){
+            throw new UnauthorizedException("User not logged in!");
+        }
+
+        Product product = productRepository.findById(pid).orElseThrow(() -> new NotFoundException("Product not found"));
+
+        User user = userRepository.findById(currentUser.getId()).orElseThrow(() -> new NotFoundException("Users not found"));
+
+        user.getSubscriptions().add(product);
+
+        product.getUsersSubscribed().add(user);
+
+        userRepository.save(user);
+
+        productRepository.save(product);
+
+        return mapper.map(product, ProductWithNameDTO.class);
     }
 }
