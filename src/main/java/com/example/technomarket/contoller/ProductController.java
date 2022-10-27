@@ -2,16 +2,9 @@ package com.example.technomarket.contoller;
 
 import com.example.technomarket.model.dto.characteristicDTOs.CharacteristicWithValueDTO;
 import com.example.technomarket.model.dto.product.*;
-import com.example.technomarket.model.exceptions.BadRequestException;
-import com.example.technomarket.model.pojo.Product;
 import com.example.technomarket.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
-import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -55,5 +48,17 @@ public class ProductController extends AbstractController {
     public ProductWithCharacteristicsDTO addCharacteristic(@PathVariable long pid, @RequestBody CharacteristicWithValueDTO characteristic){
         return productService.addCharacteristic(pid, characteristic);
     }
+
+    @GetMapping("/get/{subcategory}")
+    public List<ProductForClientDTO> getProductBySubcategory(@PathVariable String subcategory){
+       return productService.getProductBySubcategory(subcategory);
+    }
+
+    @GetMapping("/{pid}")
+    public ProductForClientDTO getProductById(@PathVariable long pid){
+        return productService.getProduct(pid);
+    }
+
+
 
 }

@@ -1,11 +1,8 @@
 package com.example.technomarket.services;
 
-
 import com.example.technomarket.model.dto.characteristicDTOs.CharacteristicValueDTO;
 import com.example.technomarket.model.dto.characteristicDTOs.CharacteristicWithValueDTO;
-import com.example.technomarket.model.dto.characteristicDTOs.ResponseCharacteristicDTO;
 import com.example.technomarket.model.dto.product.*;
-import com.example.technomarket.model.dto.subcategoryDTOs.SubcategoryWithNameOnly;
 import com.example.technomarket.model.exceptions.BadRequestException;
 import com.example.technomarket.model.exceptions.UnauthorizedException;
 import com.example.technomarket.model.pojo.*;
@@ -19,7 +16,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class ProductService {
@@ -225,5 +221,21 @@ public class ProductService {
         else{
             throw new BadRequestException("No such product or characteristic!");
         }
+    }
+
+    public List<ProductForClientDTO> getProductBySubcategory(String subcategory) {
+        Optional<SubCategory> subCategoryOptional = subcategoryRepository.findSubCategoryBySubcategoryName(subcategory);
+        if(subCategoryOptional.isPresent()){
+            List<Product> products = productRepository.findAllBySubcategory(subCategoryOptional.get());
+            return products.stream().map(p -> mapper.map(p,ProductForClientDTO.class)).toList();
+        }
+        else{
+            throw new BadRequestException("No such subcategory!");
+        }
+    }
+
+    public ProductForClientDTO getProduct(long pid) {
+        Product product = productRepository.findById(pid).orElseThrow(() -> new BadRequestException("No such product!"));
+        return mapper.map(product, ProductForClientDTO.class);
     }
 }

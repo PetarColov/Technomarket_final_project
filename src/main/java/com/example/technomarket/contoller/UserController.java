@@ -26,11 +26,9 @@ public class UserController extends AbstractController {
     private ModelMapper mapper;
 
     @PostMapping("/register")
-    public UserWithoutPasswordDTO registerUser(@RequestBody UserRegisterDTO dto, HttpSession session){
+    public UserWithoutPasswordDTO registerUser(@RequestBody UserRegisterDTO dto){
         UserWithoutPasswordDTO userWithoutPass = userService.validateData(dto);
         if(userWithoutPass != null){
-//            session.setAttribute("REGISTERED", true);
-//            session.setAttribute("USER_ID", userWithoutPass.getId());
             return userWithoutPass;
         }
         else{

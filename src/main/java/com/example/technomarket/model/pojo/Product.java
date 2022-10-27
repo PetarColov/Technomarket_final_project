@@ -40,7 +40,7 @@ public class Product {
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "product", cascade = CascadeType.ALL)
     private Set<Chars> characteristics;
 
-    @ManyToOne
+    @ManyToOne()
     @JoinColumn(name = "discount_id")
     private Discount discount;
 }
