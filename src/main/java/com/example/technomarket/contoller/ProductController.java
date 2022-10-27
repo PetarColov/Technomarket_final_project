@@ -29,8 +29,8 @@ public class ProductController extends AbstractController {
         return productService.addToCart(addProductToCartDTO, pid);
     }
 
-    @GetMapping("/search/{product}")
-    public ProductForClientDTO searchForProductByName(@PathVariable String product){
+    @GetMapping("/search/")
+    public ProductForClientDTO searchForProductByName(@RequestBody ProductWithNameDTO product){
         return productService.searchForProductByName(product);
     }
 

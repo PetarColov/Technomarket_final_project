@@ -25,18 +25,17 @@ public class SubcategoryController extends AbstractController{
         return subcategoryService.showSubcategory(cid);
     }
 
-    //TODO: change URI
-    @PostMapping("/{cid}/")
+    @PostMapping("/add/{cid}/")
     public ResponseSubcategoryDTO addSubcategory(@PathVariable long cid, @RequestBody SubcategoryWithNameOnly subcategory){
        return subcategoryService.addSubcategory(cid,subcategory);
     }
 
-    @PutMapping("/{cid}/")
+    @PutMapping("/edit/{cid}/")
     public ResponseSubcategoryDTO editSubcategory(@PathVariable long cid, @RequestBody SubcategoryWithNewName subcategory){
        return subcategoryService.editSubcategory(cid, subcategory);
     }
 
-    @DeleteMapping("/{cid}/")
+    @DeleteMapping("/delete/{cid}/")
     public ResponseSubcategoryDTO deleteSubcategory(@PathVariable long cid, @RequestBody SubcategoryWithNameOnly subcategory){
         return subcategoryService.deleteSubcategory(cid,subcategory);
     }

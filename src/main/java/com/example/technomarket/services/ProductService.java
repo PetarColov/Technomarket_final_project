@@ -160,8 +160,8 @@ public class ProductService {
         return new ProductInCartDTO(product.getName(), addProductToCartDTO.getQuantity());
     }
 
-    public ProductForClientDTO searchForProductByName(String product) {
-        Optional<Product> productOptional = productRepository.findByName(product);
+    public ProductForClientDTO searchForProductByName(ProductWithNameDTO product) {
+        Optional<Product> productOptional = productRepository.findByName(product.getName());
         if(productOptional.isPresent()){
             return mapper.map(productOptional.get(),ProductForClientDTO.class);
         }
