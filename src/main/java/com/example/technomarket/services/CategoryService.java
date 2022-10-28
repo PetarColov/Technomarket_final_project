@@ -37,7 +37,7 @@ public class CategoryService {
 
     public ResponseCategoryDTO addCategoryToList(CategoryWithNameOnlyDTO category) {
         if(!currentUser.isAdmin()){
-            throw new UnauthorizedException("Method not allowed!");
+            throw new UnauthorizedException("You don`t have permission for this operation!");
         }
         Optional<Category> optionalCategory = categoryRepository.findCategoryByName(category.getCategoryName());
         if(category.getCategoryName() != null && optionalCategory.isEmpty()){
@@ -52,7 +52,7 @@ public class CategoryService {
 
     public ResponseCategoryDTO deleteCategory(long id) {
         if(!currentUser.isAdmin()){
-            throw new UnauthorizedException("Method not allowed!");
+            throw new UnauthorizedException("You don`t have permission for this operation!");
         }
         Optional<Category> categoryOptional = categoryRepository.findCategoryByCategoryId(id);
         if(categoryOptional.isPresent()){
@@ -70,7 +70,7 @@ public class CategoryService {
 
     public ResponseCategoryDTO updateCategory(long cid, CategoryWithNewNameDTO category) {
         if(!currentUser.isAdmin()){
-            throw new UnauthorizedException("Method not allowed!");
+            throw new UnauthorizedException("You don`t have permission for this operation!");
         }
         Optional<Category> categoryOptional= categoryRepository.findCategoryByCategoryId(cid);
         if(categoryOptional.isPresent()){

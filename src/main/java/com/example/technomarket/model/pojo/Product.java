@@ -35,7 +35,7 @@ public class Product {
     private List<User> usersSubscribed;
 
     @ManyToOne
-    //@JoinColumn(name = "subcategory_id")
+    @JoinColumn(name = "subcategory_id")
     private SubCategory subcategory;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "product", cascade = CascadeType.ALL)

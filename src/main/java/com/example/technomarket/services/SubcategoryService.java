@@ -31,84 +31,85 @@ public class SubcategoryService {
 
     public List<SubcategoryWithNameOnly> showSubcategory(long cid) {
         Optional<Category> categoryOptional = categoryRepository.findCategoryByCategoryId(cid);
-        if(categoryOptional.isPresent()){
-            List<SubCategory> subCategoryOptional = subcategoryRepository.findAllSubCategoryByCategory(categoryOptional.get());
-            return subCategoryOptional.stream().map(s -> modelMapper.map(s, SubcategoryWithNameOnly.class)).collect(Collectors.toList());
+
+        if(categoryOptional.isEmpty()) {
+            throw new BadRequestException("There is no such category!");
         }
-        throw new BadRequestException("There is no such category!");
+
+        List<SubCategory> subCategoryOptional = subcategoryRepository.findAllSubCategoryByCategory(categoryOptional.get());
+
+        return subCategoryOptional.stream()
+                .map(subCategory -> modelMapper
+                .map(subCategory, SubcategoryWithNameOnly.class))
+                .collect(Collectors.toList());
     }
 
     public ResponseSubcategoryDTO addSubcategory(long cid, SubcategoryWithNameOnly subcategory) {
         if(!currentUser.isAdmin()){
-            throw new UnauthorizedException("Method not allowed!");
+            throw new UnauthorizedException("You don`t have permission for this operation!");
         }
+
         Optional<Category> categoryOptional = categoryRepository.findCategoryByCategoryId(cid);
-        if(categoryOptional.isPresent()){
-            Optional<SubCategory> subCategoryOptional = subcategoryRepository.findSubCategoryBySubcategoryName(subcategory.getSubcategoryName());
-            if(subCategoryOptional.isEmpty()){
-                SubCategory subCategory = modelMapper.map(subcategory,SubCategory.class);
-                subCategory.setCategory(categoryOptional.get());
-                subcategoryRepository.save(subCategory);
-                Optional<SubCategory> s = subcategoryRepository.findSubCategoryBySubcategoryName(subcategory.getSubcategoryName());
-                ResponseSubcategoryDTO subcategoryDTO = null;
-                if(s.isPresent()){
-                    subcategoryDTO = modelMapper.map(s.get(), ResponseSubcategoryDTO.class);
-                }
-                return subcategoryDTO;
-            }
-            else{
-                throw new BadRequestException("Such subcategory already exists");
-            }
-        }
-        else{
+        if(categoryOptional.isEmpty()) {
             throw new BadRequestException("No such category exists so that you can add this subcategory");
         }
+
+        String subcategoryName = subcategory.getSubcategoryName();
+        if(subcategoryName == null || subcategoryName.length() == 0){
+            throw new BadRequestException("No empty name is allowed!");
+        }
+
+        Optional<SubCategory> subCategoryOptional = subcategoryRepository.findSubCategoryBySubcategoryName(subcategoryName);
+        if(subCategoryOptional.isPresent()) {
+            throw new BadRequestException("Such subcategory already exists");
+        }
+
+        SubCategory subCategory = modelMapper.map(subcategory,SubCategory.class);
+        subCategory.setCategory(categoryOptional.get());
+        SubCategory savedSubcategory = subcategoryRepository.save(subCategory);
+
+        return modelMapper.map(savedSubcategory, ResponseSubcategoryDTO.class);
     }
 
-    public ResponseSubcategoryDTO editSubcategory(long cid, SubcategoryWithNewName subcategoryWithNewName){
+    public ResponseSubcategoryDTO editSubcategory(SubcategoryWithNewName subcategoryWithNewName){
         if(!currentUser.isAdmin()){
-            throw new UnauthorizedException("Method not allowed!");
+            throw new UnauthorizedException("You don`t have permission for this operation!");
         }
-        Optional<Category> category = categoryRepository.findCategoryByCategoryId(cid);
-        if(category.isPresent()){
-            Optional<SubCategory> subCategoryOptional = subcategoryRepository.findSubCategoryBySubcategoryName(subcategoryWithNewName.getSubcategoryName());
-            if(subCategoryOptional.isPresent()){
-                SubCategory subCategory = subCategoryOptional.get();
-                subCategory.setSubcategoryName(subcategoryWithNewName.getNewSubcategoryName());
-                SubCategory subCategory1 = modelMapper.map(subCategory,SubCategory.class);
-                ResponseSubcategoryDTO subcategoryDTO = modelMapper.map(subCategory1,ResponseSubcategoryDTO.class);
-                subcategoryRepository.save(subCategory1);
-                return subcategoryDTO;
-            }
-            else{
-                throw new BadRequestException("No such subcategory exists so that you can edit this subcategory");
-            }
+
+        String subcategoryName = subcategoryWithNewName.getSubcategoryName();
+        if(subcategoryName == null || subcategoryName.length() == 0){
+            throw new BadRequestException("No empty name is allowed!");
         }
-        else{
-            throw new BadRequestException("No such category exists so that you can edit this subcategory");
-        }
+
+        SubCategory subCategory = findSubcategoryByName(subcategoryName);
+        subCategory.setSubcategoryName(subcategoryWithNewName.getNewSubcategoryName());
+        subcategoryRepository.save(subCategory);
+
+        return modelMapper.map(subCategory,ResponseSubcategoryDTO.class);
     }
 
-    public ResponseSubcategoryDTO deleteSubcategory(long cid, SubcategoryWithNameOnly subcategoryWithNameOnly) {
+    public ResponseSubcategoryDTO deleteSubcategory(SubcategoryWithNameOnly subcategoryWithNameOnly) {
         if(!currentUser.isAdmin()){
-            throw new UnauthorizedException("Method not allowed!");
+            throw new UnauthorizedException("You don`t have permission for this operation!");
         }
-        Optional<Category> category = categoryRepository.findCategoryByCategoryId(cid);
-        if (category.isPresent()) {
-            Optional<SubCategory> subCategoryOptional = subcategoryRepository.findSubCategoryBySubcategoryName(subcategoryWithNameOnly.getSubcategoryName());
-            if(subCategoryOptional.isPresent()) {
-                SubCategory subCategory = modelMapper.map(subCategoryOptional, SubCategory.class);
-                ResponseSubcategoryDTO subcategoryDTO = modelMapper.map(subCategory,ResponseSubcategoryDTO.class);
-                subcategoryRepository.delete(subCategory);
-                return subcategoryDTO;
-            }
-            else{
-                throw new BadRequestException("No such category exists!");
-            }
+
+        String subcategoryName = subcategoryWithNameOnly.getSubcategoryName();
+        if(subcategoryName == null || subcategoryName.length() == 0){
+            throw new BadRequestException("No empty name is allowed!");
         }
-        else{
-            throw new BadRequestException("No such category exists so that you can delete this subcategory");
-        }
+
+        SubCategory subCategory = findSubcategoryByName(subcategoryName);
+        ResponseSubcategoryDTO subcategoryDTO = modelMapper.map(subCategory,ResponseSubcategoryDTO.class);
+        subcategoryRepository.delete(subCategory);
+
+        return subcategoryDTO;
     }
 
+    private SubCategory findSubcategoryByName(String subcategoryName){
+        Optional<SubCategory> subcategory = subcategoryRepository.findSubCategoryBySubcategoryName(subcategoryName);
+        if(subcategory.isEmpty()) {
+            throw new BadRequestException("No such subcategory exists!");
+        }
+        return subcategory.get();
+    }
 }

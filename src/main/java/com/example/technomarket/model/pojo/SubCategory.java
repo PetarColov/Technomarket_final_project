@@ -3,7 +3,7 @@ package com.example.technomarket.model.pojo;
 import lombok.Data;
 
 import javax.persistence.*;
-import java.util.Set;
+import java.util.List;
 
 @Data
 @Entity
@@ -18,9 +18,9 @@ public class SubCategory {
     private String subcategoryName;
 
     @ManyToOne
-    //@JoinColumn(name = "category_id", nullable = false)
+    @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
-    @OneToMany(mappedBy = "subcategory")
-    private Set<Product> products;
+    @OneToMany(mappedBy = "subcategory", cascade = CascadeType.REMOVE)
+    private List<Product> products;
 }

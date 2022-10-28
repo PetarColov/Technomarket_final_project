@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class ResponseSubcategoryDTO {
-    private String subcategoryName;
     private long subcategoryID;
+    private String subcategoryName;
 }
