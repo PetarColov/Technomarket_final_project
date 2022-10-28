@@ -8,6 +8,6 @@ import java.util.Optional;
 
 @Repository
 public interface CharacteristicRepository extends JpaRepository<Characteristic, Long> {
-    public Optional<Characteristic> findCharacteristicByCharacteristicName(String name);
-    public Optional<Characteristic> findCharacteristicById(long id);
+     Optional<Characteristic> findCharacteristicByCharacteristicName(String name);
+     Optional<Characteristic> findCharacteristicById(long id);
 }

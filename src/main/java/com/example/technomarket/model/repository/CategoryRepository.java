@@ -10,7 +10,7 @@ import java.util.Set;
 
 @Repository
 public interface CategoryRepository extends JpaRepository<Category,Long> {
-    public Optional<Category> findCategoryByName(String categoryName);
-    public Optional<Category> findCategoryByCategoryId(long cid);
+     Optional<Category> findCategoryByName(String categoryName);
+     Optional<Category> findCategoryByCategoryId(long cid);
 
 }

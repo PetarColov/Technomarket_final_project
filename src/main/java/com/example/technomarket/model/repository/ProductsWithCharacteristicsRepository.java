@@ -8,5 +8,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface ProductsWithCharacteristicsRepository extends JpaRepository<Chars, CharacteristicKey> {
-    public List<Chars> findAllByProduct(Product product);
+     List<Chars> findAllByProduct(Product product);
 }
