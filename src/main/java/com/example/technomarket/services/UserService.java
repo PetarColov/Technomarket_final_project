@@ -10,9 +10,16 @@ import com.example.technomarket.model.repository.UserRepository;
 import com.example.technomarket.util.CurrentUser;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+import java.io.UnsupportedEncodingException;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
@@ -34,6 +41,8 @@ public class UserService {
     private CurrentUser currentUser;
     @Autowired
     private CartRepository cartRepository;
+    @Autowired
+    private JavaMailSender mailSender;
 
     public UserWithoutPasswordDTO validateData(UserRegisterDTO dto) {
 
@@ -62,7 +71,29 @@ public class UserService {
              user.setAdmin(false);
          }
          userRepository.save(user);
-         return mapper.map(user, UserWithoutPasswordDTO.class);
+
+        try {
+            sendEmail(user);
+        } catch (MessagingException | UnsupportedEncodingException e) {
+            throw new BadRequestException("Something with sending email went wrong!");
+        }
+
+        return mapper.map(user, UserWithoutPasswordDTO.class);
+    }
+
+    private void sendEmail(User user) throws MessagingException, UnsupportedEncodingException {
+        String toAddress = user.getEmail();
+        String fromAddress = "technomarketfinalproject@gmail.com";
+        String subject = "Registration";
+        String content = "Dear " + user.getFirstName() + " " + user.getLastName() + ", you have completed your registration!";
+
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(fromAddress);
+        message.setTo(toAddress);
+        message.setSubject(subject);
+        message.setText(content);
+
+        mailSender.send(message);
     }
 
     private boolean isFirstUser() {

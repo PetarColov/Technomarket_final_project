@@ -18,6 +18,8 @@ import com.example.technomarket.model.repository.UserRepository;
 import com.example.technomarket.util.CurrentUser;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -42,6 +44,8 @@ public class DiscountService {
     private CurrentUser currentUser;
     @Autowired
     private NotificationRepository notificationRepository;
+    @Autowired
+    private JavaMailSender mailSender;
 
     private Product getProduct(Long pid){
         Optional<Product> product = productRepository.findById(pid);
@@ -99,11 +103,34 @@ public class DiscountService {
                 productRepository.save(p);
             }
 
+            for (Long productId : discountProductsDTO.getProducts()) {
+                Product product = productRepository.findById(productId).get();
+                for (User user : product.getUsersSubscribed()) {
+                    sendEmail(user, product, discountPercent);
+                }
+            }
+
             return modelMapper.map(discountOptional.get(),ResponseDiscountDTO.class);
         }
         else{
             throw new BadRequestException("This discount does not exists");
         }
+    }
+
+    private void sendEmail(User user, Product product, int discountPercent) {
+        String toAddress = user.getEmail();
+        String fromAddress = "technomarketfinalproject@gmail.com";
+        String subject = "Product on sale";
+        String content = "Dear " + user.getFirstName() + " " + user.getLastName() + ", one of your favourite products is now on sale. " +
+               product.getName() + " is now " + discountPercent + "% down. Hurry up and get one!";
+
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(fromAddress);
+        message.setTo(toAddress);
+        message.setSubject(subject);
+        message.setText(content);
+
+        mailSender.send(message);
     }
 
     private String setMessageToNotify(Product p, Discount discount) {

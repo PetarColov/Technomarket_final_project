@@ -59,7 +59,7 @@ public class ProductController extends AbstractController {
         return productService.getProduct(pid);
     }
 
-    @PostMapping("/subscribe/{pid}")
+    @PostMapping("/{pid}/subscribe")
     public ProductWithNameDTO subscribeForProduct(@PathVariable long pid){
         return productService.subscribeForProduct(pid);
     }
