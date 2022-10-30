@@ -1,6 +1,5 @@
 package com.example.technomarket.model.repository;
 
-import com.example.technomarket.model.dto.subcategoryDTOs.SubcategoryWithNameOnly;
 import com.example.technomarket.model.pojo.Category;
 import com.example.technomarket.model.pojo.SubCategory;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -3,7 +3,6 @@ package com.example.technomarket.model.repository;
 import com.example.technomarket.model.pojo.Product;
 import com.example.technomarket.model.pojo.SubCategory;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

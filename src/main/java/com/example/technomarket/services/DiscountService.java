@@ -4,7 +4,6 @@ import com.example.technomarket.model.dto.discounts.DiscountProductsDTO;
 import com.example.technomarket.model.dto.discounts.RequestDiscountDTO;
 import com.example.technomarket.model.dto.discounts.ResponseDiscountDTO;
 import com.example.technomarket.model.dto.notifications.SetNotificationDTO;
-import com.example.technomarket.model.dto.product.ProductForClientDTO;
 import com.example.technomarket.model.exceptions.BadRequestException;
 import com.example.technomarket.model.exceptions.UnauthorizedException;
 import com.example.technomarket.model.pojo.Discount;
@@ -22,13 +21,9 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class DiscountService {

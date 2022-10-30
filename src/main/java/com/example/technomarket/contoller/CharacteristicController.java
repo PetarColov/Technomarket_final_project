@@ -1,5 +1,6 @@
 package com.example.technomarket.contoller;
 
+import com.example.technomarket.model.dto.characteristicDTOs.CharacteristicDTO;
 import com.example.technomarket.model.dto.characteristicDTOs.RequestCharacteristic;
 import com.example.technomarket.model.dto.characteristicDTOs.ResponseCharacteristicDTO;
 import com.example.technomarket.services.CharacteristicService;
@@ -14,7 +15,7 @@ public class CharacteristicController extends AbstractController{
     private CharacteristicService characteristicService;
 
     @PostMapping("/characteristic")
-    public ResponseCharacteristicDTO addCharacteristic(@RequestBody RequestCharacteristic characteristic){
+    public CharacteristicDTO addCharacteristic(@RequestBody RequestCharacteristic characteristic){
         return characteristicService.addCharacteristic(characteristic);
     }
 }

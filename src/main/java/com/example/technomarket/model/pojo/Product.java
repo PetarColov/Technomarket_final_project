@@ -35,7 +35,7 @@ public class Product {
     private List<User> usersSubscribed;
 
     @ManyToOne
-    @JoinColumn(name = "subcategory_id")
+    @JoinColumn(name = "subcategory_id", nullable = false)
     private SubCategory subcategory;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "product", cascade = CascadeType.ALL)
@@ -44,4 +44,7 @@ public class Product {
     @ManyToOne()
     @JoinColumn(name = "discount_id")
     private Discount discount;
+
+    @OneToMany(mappedBy = "product")
+    private List<ProductImage> productImages;
 }

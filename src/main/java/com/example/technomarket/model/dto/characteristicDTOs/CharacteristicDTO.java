@@ -3,8 +3,7 @@ package com.example.technomarket.model.dto.characteristicDTOs;
 import lombok.Data;
 
 @Data
-public class ResponseCharacteristicDTO {
-    private long characteristicId;
+public class CharacteristicDTO {
+    private Long id;
     private String characteristicName;
-    private String characteristicValue;
 }

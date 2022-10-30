@@ -1,12 +1,14 @@
 package com.example.technomarket.model.repository;
 
-import com.example.technomarket.model.pojo.CharacteristicKey;
 import com.example.technomarket.model.pojo.Chars;
 import com.example.technomarket.model.pojo.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-public interface ProductsWithCharacteristicsRepository extends JpaRepository<Chars, CharacteristicKey> {
-     List<Chars> findAllByProduct(Product product);
+@Repository
+public interface CharsRepository extends JpaRepository<Chars, Long> {
+    List<Chars> findAllByProduct(Product product);
+
 }

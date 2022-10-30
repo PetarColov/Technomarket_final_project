@@ -3,7 +3,6 @@ package com.example.technomarket.services;
 import com.example.technomarket.model.dto.orders.FinishOrderDTO;
 import com.example.technomarket.model.dto.orders.OrderCredentialsDTO;
 import com.example.technomarket.model.dto.product.ProductFinishOrderDTO;
-import com.example.technomarket.model.dto.product.ProductWithNameDTO;
 import com.example.technomarket.model.dto.user.UserWithoutPasswordDTO;
 import com.example.technomarket.model.pojo.Cart;
 import com.example.technomarket.model.pojo.Product;

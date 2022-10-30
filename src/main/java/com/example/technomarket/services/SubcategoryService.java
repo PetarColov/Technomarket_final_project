@@ -94,10 +94,6 @@ public class SubcategoryService {
         }
 
         String subcategoryName = subcategoryWithNameOnly.getSubcategoryName();
-        if(subcategoryName == null || subcategoryName.length() == 0){
-            throw new BadRequestException("No empty name is allowed!");
-        }
-
         SubCategory subCategory = findSubcategoryByName(subcategoryName);
         ResponseSubcategoryDTO subcategoryDTO = modelMapper.map(subCategory,ResponseSubcategoryDTO.class);
         subcategoryRepository.delete(subCategory);

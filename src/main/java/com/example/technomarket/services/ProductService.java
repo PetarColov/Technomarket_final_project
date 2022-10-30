@@ -1,7 +1,7 @@
 package com.example.technomarket.services;
 
-import com.example.technomarket.model.dto.characteristicDTOs.CharacteristicValueDTO;
 import com.example.technomarket.model.dto.characteristicDTOs.CharacteristicWithValueDTO;
+import com.example.technomarket.model.dto.characteristicDTOs.ResponseCharacteristicDTO;
 import com.example.technomarket.model.dto.product.*;
 import com.example.technomarket.model.exceptions.BadRequestException;
 import com.example.technomarket.model.exceptions.NotFoundException;
@@ -38,7 +38,13 @@ public class ProductService {
     @Autowired
     private BrandRepository brandRepository;
     @Autowired
-    private ProductsWithCharacteristicsRepository productsWithCharacteristicsRepository;
+    private ImageService imageService;
+    @Autowired
+    private  ImageRepository imageRepository;
+    @Autowired
+    private CharsRepository charsRepository;
+    @Autowired
+    private CharacteristicService characteristicService;
 
     public ProductResponseDTO addProduct(AddProductDTO productDTO) {
 
@@ -160,6 +166,7 @@ public class ProductService {
         return new ProductInCartDTO(product.getName(), addProductToCartDTO.getQuantity());
     }
 
+    //TODO
     public ProductForClientDTO searchForProductByName(ProductWithNameDTO product) {
         Optional<Product> productOptional = productRepository.findByName(product.getName());
         if(productOptional.isPresent()){
@@ -170,6 +177,7 @@ public class ProductService {
         }
     }
 
+    //TODO
     public List<ProductForClientDTO> sortProductsAscending(String subCategory) {
         Optional<SubCategory> subCategoryOptional = subcategoryRepository.findSubCategoryBySubcategoryName(subCategory);
         if(subCategoryOptional.isPresent()) {
@@ -181,6 +189,7 @@ public class ProductService {
         }
     }
 
+    //TODO
     public List<ProductForClientDTO> sortProductsDescending(String subCategory) {
         Optional<SubCategory> subCategoryOptional = subcategoryRepository.findSubCategoryBySubcategoryName(subCategory);
         if(subCategoryOptional.isPresent()) {
@@ -192,38 +201,40 @@ public class ProductService {
         }
     }
 
-    public ProductWithCharacteristicsDTO addCharacteristic(long pid, CharacteristicWithValueDTO characteristic) {
+    public ProductWithCharacteristicsDTO addCharacteristic(long pid, CharacteristicWithValueDTO characteristicDTO) {
         if(!currentUser.isAdmin()){
             throw new UnauthorizedException("You don`t have permission for this operation!");
         }
 
-        String characteristicName = characteristic.getCharacteristic().getCharacteristicName();
+        String characteristicName = characteristicDTO.getCharacteristic().getCharacteristicName();
         Optional<Product> productOptional = productRepository.findById(pid);
         Optional<Characteristic> characteristicOptional = characteristicRepository.findCharacteristicByCharacteristicName(characteristicName);
 
-        if(productOptional.isPresent() && characteristicOptional.isPresent()){
-            Product product = productOptional.get();
-            Characteristic characteristic1 = characteristicOptional.get();
-            String charValue = characteristic.getCharacteristicValue();
-
-            CharacteristicKey characteristicKey = new CharacteristicKey(product.getId(), characteristic1.getId());
-            Chars chars = new Chars(characteristicKey, product, characteristic1, charValue);
-            productsWithCharacteristicsRepository.save(chars);
-            product.getCharacteristics().add(chars);
-
-            List<Chars> charsList = productsWithCharacteristicsRepository.findAllByProduct(product);
-            List<CharacteristicValueDTO> characteristicDTOS = charsList.stream().map(c -> mapper.map(c, CharacteristicValueDTO.class)).toList();
-            ProductWithCharacteristicsDTO product1 = new ProductWithCharacteristicsDTO(product.getName(), new ArrayList<>());
-            for(CharacteristicValueDTO chars1 : characteristicDTOS){
-                product1.getCharacteristicValues().add(chars1.getCharacteristicValue());
-            }
-            return product1;
+        if(productOptional.isEmpty() && characteristicOptional.isEmpty()) {
+            throw new BadRequestException("No such product or characteristicDTO!");
         }
-        else{
-            throw new BadRequestException("No such product or characteristic!");
+
+        Product product = productOptional.get();
+        Characteristic characteristic = characteristicOptional.get();
+        String charValue = characteristicDTO.getCharacteristicValue();
+
+        CharacteristicKey characteristicKey = new CharacteristicKey(product.getId(), characteristic.getId());
+        Chars chars = new Chars(characteristicKey, product, characteristic, charValue);
+        charsRepository.save(chars);
+        product.getCharacteristics().add(chars);
+
+        List<Chars> charsList = charsRepository.findAllByProduct(product);
+        List<ResponseCharacteristicDTO> characteristicDTOS = charsList.stream()
+                .map(c -> mapper.map(c, ResponseCharacteristicDTO.class)).toList();
+        ProductWithCharacteristicsDTO productResponse = new ProductWithCharacteristicsDTO(product.getName(), new ArrayList<>());
+        for(ResponseCharacteristicDTO responseChars : characteristicDTOS){
+            productResponse.getCharacteristics().add(responseChars);
         }
+
+        return productResponse;
     }
 
+    //TODO
     public List<ProductForClientDTO> getProductBySubcategory(String subcategory) {
         Optional<SubCategory> subCategoryOptional = subcategoryRepository.findSubCategoryBySubcategoryName(subcategory);
         if(subCategoryOptional.isPresent()){
@@ -237,10 +248,18 @@ public class ProductService {
 
     public ProductForClientDTO getProduct(long pid) {
         Product product = productRepository.findById(pid).orElseThrow(() -> new BadRequestException("No such product!"));
-        return mapper.map(product, ProductForClientDTO.class);
+        List<ProductImage> productImages = imageRepository.findAllByProduct(product);
+        List<Chars> characteristics = charsRepository.findAllByProduct(product);
+        ProductForClientDTO product1 = new ProductForClientDTO();
+        product1.setPrice(product.getPrice());
+        product1.setBrandName(product.getBrandName());
+        product1.setAmountLeft(product.getAmountLeft());
+        product1.setName(product.getName());
+        product1.setId(product.getId());
+        product1.setProductImages(imageService.getAllImages(productImages));
+        product1.setCharacteristicValues(characteristicService.getAllCharsForProduct(characteristics));
+        return product1;
     }
-
-
 
     public ProductWithNameDTO subscribeForProduct(long pid) {
         if (currentUser.getId() == null){
