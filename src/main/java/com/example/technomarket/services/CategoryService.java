@@ -1,7 +1,7 @@
 package com.example.technomarket.services;
 
-import com.example.technomarket.model.dto.categoryDTOs.CategoryWithNameOnlyDTO;
 import com.example.technomarket.model.dto.categoryDTOs.CategoryWithNewNameDTO;
+import com.example.technomarket.model.dto.categoryDTOs.RequestCategoryDTO;
 import com.example.technomarket.model.dto.categoryDTOs.ResponseCategoryDTO;
 import com.example.technomarket.model.exceptions.BadRequestException;
 import com.example.technomarket.model.exceptions.UnauthorizedException;
@@ -30,12 +30,12 @@ public class CategoryService {
     private CurrentUser currentUser;
 
 
-    public List<CategoryWithNameOnlyDTO> showAllCategories(){
+    public List<ResponseCategoryDTO> showAllCategories(){
         List<Category> category = categoryRepository.findAll();
-        return category.stream().map(c -> modelMapper.map(c, CategoryWithNameOnlyDTO.class)).collect(Collectors.toList());
+        return category.stream().map(c -> modelMapper.map(c, ResponseCategoryDTO.class)).collect(Collectors.toList());
     }
 
-    public ResponseCategoryDTO addCategoryToList(CategoryWithNameOnlyDTO category) {
+    public ResponseCategoryDTO addCategoryToList(RequestCategoryDTO category) {
         if(!currentUser.isAdmin()){
             throw new UnauthorizedException("You don`t have permission for this operation!");
         }

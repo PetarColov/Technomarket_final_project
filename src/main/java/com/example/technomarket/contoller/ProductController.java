@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/product")
+@RequestMapping("/products")
 public class ProductController extends AbstractController {
 
     @Autowired
@@ -29,28 +29,20 @@ public class ProductController extends AbstractController {
         return productService.addToCart(addProductToCartDTO, pid);
     }
 
-    @GetMapping("/search/")
-    public ProductForClientDTO searchForProductByName(@RequestBody ProductWithNameDTO product){
-        return productService.searchForProductByName(product);
+    @GetMapping("/search")
+    public ProductResponseDTO searchForProductByName(@RequestParam(name = "name") String productName){
+        return productService.searchForProductByName(productName);
     }
 
-    @GetMapping("/sortAsc/{subcategory}")
-    public List<ProductForClientDTO> sortProductsAscending(@PathVariable String subcategory){
-        return productService.sortProductsAscending(subcategory);
-    }
-
-    @GetMapping("/sortDesc/{subcategory}")
-    public List<ProductForClientDTO> sortProductsDescending(@PathVariable String subcategory){
-        return productService.sortProductsDescending(subcategory);
-    }
 
     @PostMapping("/{pid}/addchar")
     public ProductWithCharacteristicsDTO addCharacteristic(@PathVariable long pid, @RequestBody CharacteristicWithValueDTO characteristic){
         return productService.addCharacteristic(pid, characteristic);
     }
 
+    //TODO not working if subcategory has 2 words
     @GetMapping("/get/{subcategory}")
-    public List<ProductForClientDTO> getProductBySubcategory(@PathVariable String subcategory){
+    public List<ProductResponseDTO> getProductBySubcategory(@PathVariable String subcategory){
        return productService.getProductBySubcategory(subcategory);
     }
 
@@ -64,4 +56,8 @@ public class ProductController extends AbstractController {
         return productService.subscribeForProduct(pid);
     }
 
+    @GetMapping()
+    public List<ProductResponseDTO> sortProducts(@RequestParam(name = "subcat_id") Long subcategory, @RequestParam(name = "sort") String sort){
+        return productService.sortProducts(subcategory, sort);
+    }
 }

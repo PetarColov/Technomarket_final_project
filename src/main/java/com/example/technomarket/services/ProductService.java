@@ -166,40 +166,29 @@ public class ProductService {
         return new ProductInCartDTO(product.getName(), addProductToCartDTO.getQuantity());
     }
 
-    //TODO
-    public ProductForClientDTO searchForProductByName(ProductWithNameDTO product) {
-        Optional<Product> productOptional = productRepository.findByName(product.getName());
-        if(productOptional.isPresent()){
-            return mapper.map(productOptional.get(),ProductForClientDTO.class);
-        }
-        else{
-            throw new BadRequestException("No such product was found!");
-        }
+    public ProductResponseDTO searchForProductByName(String productName) {
+        Product product = productRepository
+                .findByName(productName).orElseThrow(() -> new BadRequestException("No such product was found!"));
+
+        return mapper.map(product,ProductResponseDTO.class);
     }
 
-    //TODO
-    public List<ProductForClientDTO> sortProductsAscending(String subCategory) {
-        Optional<SubCategory> subCategoryOptional = subcategoryRepository.findSubCategoryBySubcategoryName(subCategory);
-        if(subCategoryOptional.isPresent()) {
-            List<Product> products = productRepository.findAllBySubcategoryOrderByPriceDesc(subCategoryOptional.get());
-            return products.stream().map(product -> mapper.map(product, ProductForClientDTO.class)).toList();
+    public List<ProductResponseDTO> sortProducts(Long subCategory, String sort) {
+        SubCategory subCategoryOptional = subcategoryRepository.
+                findBySubcategoryId(subCategory).orElseThrow(() -> new BadRequestException("No such subcategories!"));
+
+        List<Product> products = null;
+        switch(sort){
+            case "asc":
+                products = productRepository.findAllBySubcategoryOrderByPriceAsc(subCategoryOptional);
+                break;
+            default:
+                products = productRepository.findAllBySubcategoryOrderByPriceDesc(subCategoryOptional);
+                break;
         }
-        else{
-            throw new BadRequestException("No such subcategories!");
-        }
+        return products.stream().map(product -> mapper.map(product, ProductResponseDTO.class)).toList();
     }
 
-    //TODO
-    public List<ProductForClientDTO> sortProductsDescending(String subCategory) {
-        Optional<SubCategory> subCategoryOptional = subcategoryRepository.findSubCategoryBySubcategoryName(subCategory);
-        if(subCategoryOptional.isPresent()) {
-            List<Product> products = productRepository.findAllBySubcategoryOrderByPriceAsc(subCategoryOptional.get());
-            return products.stream().map(product -> mapper.map(product, ProductForClientDTO.class)).toList();
-        }
-        else{
-            throw new BadRequestException("No such subcategories!");
-        }
-    }
 
     public ProductWithCharacteristicsDTO addCharacteristic(long pid, CharacteristicWithValueDTO characteristicDTO) {
         if(!currentUser.isAdmin()){
@@ -235,11 +224,11 @@ public class ProductService {
     }
 
     //TODO
-    public List<ProductForClientDTO> getProductBySubcategory(String subcategory) {
+    public List<ProductResponseDTO> getProductBySubcategory(String subcategory) {
         Optional<SubCategory> subCategoryOptional = subcategoryRepository.findSubCategoryBySubcategoryName(subcategory);
         if(subCategoryOptional.isPresent()){
             List<Product> products = productRepository.findAllBySubcategory(subCategoryOptional.get());
-            return products.stream().map(p -> mapper.map(p,ProductForClientDTO.class)).toList();
+            return products.stream().map(p -> mapper.map(p,ProductResponseDTO.class)).toList();
         }
         else{
             throw new BadRequestException("No such subcategory!");
@@ -255,9 +244,9 @@ public class ProductService {
         product1.setBrandName(product.getBrandName());
         product1.setAmountLeft(product.getAmountLeft());
         product1.setName(product.getName());
-        product1.setId(product.getId());
+        product1.setProductId(product.getId());
         product1.setProductImages(imageService.getAllImages(productImages));
-        product1.setCharacteristicValues(characteristicService.getAllCharsForProduct(characteristics));
+        product1.setCharacteristics(characteristicService.getAllCharsForProduct(characteristics));
         return product1;
     }
 

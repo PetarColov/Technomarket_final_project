@@ -4,6 +4,5 @@ import lombok.Data;
 
 @Data
 public class RequestCategoryDTO {
-    private long categoryId;
     private String categoryName;
 }
