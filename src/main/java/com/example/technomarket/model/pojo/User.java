@@ -42,7 +42,4 @@ public class User {
 
     @ManyToMany(mappedBy = "usersSubscribed", fetch = FetchType.EAGER)
     private List<Product> subscriptions;
-
-    @ManyToMany(mappedBy = "notifiedUser", fetch = FetchType.EAGER)
-    private Set<Notification> notifications;
 }

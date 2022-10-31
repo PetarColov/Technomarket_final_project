@@ -14,41 +14,33 @@ public abstract class AbstractController {
     @ExceptionHandler(value = NotFoundException.class)
     @ResponseStatus(code = HttpStatus.NOT_FOUND)
     public ErrorDTO notFoundHandler(Exception exception){
-        ErrorDTO errorDTO = new ErrorDTO();
-        errorDTO.setStatus(HttpStatus.NOT_FOUND.value());
-        errorDTO.setMessage(exception.getMessage());
-        errorDTO.setTime(LocalDate.now());
-        return errorDTO;
+        return buildErrorInfo(exception,HttpStatus.NOT_FOUND.value());
     }
 
     @ExceptionHandler(value = BadRequestException.class)
     @ResponseStatus(code = HttpStatus.BAD_REQUEST)
     public ErrorDTO badRequestHandler(Exception exception){
-        ErrorDTO errorDTO = new ErrorDTO();
-        errorDTO.setStatus(HttpStatus.BAD_REQUEST.value());
-        errorDTO.setMessage(exception.getMessage());
-        errorDTO.setTime(LocalDate.now());
-        return errorDTO;
+        return buildErrorInfo(exception,HttpStatus.BAD_REQUEST.value());
     }
 
     @ExceptionHandler(value = UnauthorizedException.class)
     @ResponseStatus(code = HttpStatus.UNAUTHORIZED)
     public ErrorDTO unauthorizedExceptionHandler(Exception exception){
-        ErrorDTO errorDTO = new ErrorDTO();
-        errorDTO.setStatus(HttpStatus.UNAUTHORIZED.value());
-        errorDTO.setMessage(exception.getMessage());
-        errorDTO.setTime(LocalDate.now());
-        return errorDTO;
+        return buildErrorInfo(exception,HttpStatus.UNAUTHORIZED.value());
     }
 
     @ExceptionHandler(value = Exception.class)
     @ResponseStatus(code = HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorDTO allOthersExceptionHandler(Exception exception){
+        return buildErrorInfo(exception,HttpStatus.INTERNAL_SERVER_ERROR.value());
+    }
+
+    private ErrorDTO buildErrorInfo(Exception exception, int status){
         ErrorDTO errorDTO = new ErrorDTO();
-        errorDTO.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+        errorDTO.setStatus(status);
         errorDTO.setMessage(exception.getMessage());
+        exception.printStackTrace();
         errorDTO.setTime(LocalDate.now());
         return errorDTO;
     }
-
 }

@@ -3,15 +3,12 @@ package com.example.technomarket.services;
 import com.example.technomarket.model.dto.discounts.DiscountProductsDTO;
 import com.example.technomarket.model.dto.discounts.RequestDiscountDTO;
 import com.example.technomarket.model.dto.discounts.ResponseDiscountDTO;
-import com.example.technomarket.model.dto.notifications.SetNotificationDTO;
 import com.example.technomarket.model.exceptions.BadRequestException;
 import com.example.technomarket.model.exceptions.UnauthorizedException;
 import com.example.technomarket.model.pojo.Discount;
-import com.example.technomarket.model.pojo.Notification;
 import com.example.technomarket.model.pojo.Product;
 import com.example.technomarket.model.pojo.User;
 import com.example.technomarket.model.repository.DiscountRepository;
-import com.example.technomarket.model.repository.NotificationRepository;
 import com.example.technomarket.model.repository.ProductRepository;
 import com.example.technomarket.model.repository.UserRepository;
 import com.example.technomarket.util.CurrentUser;
@@ -21,7 +18,8 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,8 +35,6 @@ public class DiscountService {
     ModelMapper modelMapper;
     @Autowired
     private CurrentUser currentUser;
-    @Autowired
-    private NotificationRepository notificationRepository;
     @Autowired
     private JavaMailSender mailSender;
 
@@ -72,63 +68,58 @@ public class DiscountService {
     }
 
     public ResponseDiscountDTO addProductsForDiscount(DiscountProductsDTO discountProductsDTO) {
-
         if(!currentUser.isAdmin()){
             throw new UnauthorizedException("You don`t have permission for this operation!");
         }
 
         List<Long> productIds = discountProductsDTO.getProducts();
-        int discountPercent = discountProductsDTO.getDiscountPercent();
-        String discountDescription = discountProductsDTO.getDiscountDescription();
+        Long discountId = discountProductsDTO.getDiscountId();
 
-        Optional<Discount> discountOptional = discountRepository.findByDiscountDescriptionAndDiscountPercent(discountDescription,discountPercent);
-        if(discountOptional.isPresent()){
-            Discount discount = discountOptional.get();
-            for(Long pid : productIds){
-                Product p = getProduct(pid);
-                List<User> usersSubscribed = p.getUsersSubscribed();
-                for (User user : usersSubscribed) {
-                    Notification map = modelMapper.map(new SetNotificationDTO(setMessageToNotify(p, discount), LocalDateTime.now()), Notification.class);
-                    map.getNotifiedUser().add(user);
-                    user.getNotifications().add(map);
-                    notificationRepository.save(map);
-                    userRepository.save(user);
-                }
-                p.setDiscount(discount);
-                productRepository.save(p);
-            }
-
-            for (Long productId : discountProductsDTO.getProducts()) {
-                Product product = productRepository.findById(productId).get();
-                for (User user : product.getUsersSubscribed()) {
-                    sendEmail(user, product, discountPercent);
-                }
-            }
-
-            return modelMapper.map(discountOptional.get(),ResponseDiscountDTO.class);
-        }
-        else{
+        Optional<Discount> discountOptional = discountRepository.findByDiscountId(discountId);
+        if(discountOptional.isEmpty()) {
             throw new BadRequestException("This discount does not exists");
         }
+
+        Discount discount = discountOptional.get();
+        //check if all products are present and save them in a list
+        List<Product> products = new ArrayList<>();
+        for(Long pid : productIds){
+            Product product = productRepository.findById(pid)
+                    .orElseThrow(() -> new BadRequestException("Some of the products you are trying to add does not exists!"));
+            products.add(product);
+        }
+
+        //set the discount for every product
+        for(Product product : products){
+            product.setDiscount(discount);
+            productRepository.save(product);
+        }
+
+        //notify users
+        for (Product product : products) {
+            for (User user : product.getUsersSubscribed()) {
+                sendEmail(user, product, discount.getDiscountPercent());
+            }
+        }
+
+        return modelMapper.map(discount,ResponseDiscountDTO.class);
     }
 
     private void sendEmail(User user, Product product, int discountPercent) {
-        String toAddress = user.getEmail();
-        String fromAddress = "technomarketfinalproject@gmail.com";
-        String subject = "Product on sale";
-        String content = "Dear " + user.getFirstName() + " " + user.getLastName() + ", one of your favourite products is now on sale. " +
-               product.getName() + " is now " + discountPercent + "% down. Hurry up and get one!";
+        new Thread(() -> {
+            String toAddress = user.getEmail();
+            String fromAddress = "technomarketfinalproject@gmail.com";
+            String subject = "Product on sale";
+            String content = "Dear " + user.getFirstName() + " " + user.getLastName() + ", one of your favourite products is now on sale. " +
+                    product.getName() + " is now " + discountPercent + "% down. Hurry up and get one!";
 
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(fromAddress);
-        message.setTo(toAddress);
-        message.setSubject(subject);
-        message.setText(content);
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(fromAddress);
+            message.setTo(toAddress);
+            message.setSubject(subject);
+            message.setText(content);
 
-        mailSender.send(message);
-    }
-
-    private String setMessageToNotify(Product p, Discount discount) {
-        return p.getName() + " is on sale until " + discount.getEndedAt().toString();
+            mailSender.send(message);
+        }).start();
     }
 }

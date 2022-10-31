@@ -8,6 +8,7 @@ import lombok.*;
 @Setter
 public class ProductInCartDTO {
 
+    //TODO add product id
     private String productName;
 
     private int quantity;

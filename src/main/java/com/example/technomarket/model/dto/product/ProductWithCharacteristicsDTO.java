@@ -10,6 +10,7 @@ import java.util.List;
 @Getter
 @Setter
 public class ProductWithCharacteristicsDTO {
+    private Long id;
     private String productName;
     private List<ResponseCharacteristicDTO> characteristics;
 }

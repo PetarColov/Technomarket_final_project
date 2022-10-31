@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/brand")
-public class BrandController {
+public class BrandController extends AbstractController {
 
     @Autowired
     private BrandService brandService;

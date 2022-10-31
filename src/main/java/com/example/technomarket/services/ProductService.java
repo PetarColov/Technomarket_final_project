@@ -46,7 +46,7 @@ public class ProductService {
     @Autowired
     private CharacteristicService characteristicService;
 
-    public ProductResponseDTO addProduct(AddProductDTO productDTO) {
+    public ProductResponseDTO addProduct(ProductDTO productDTO) {
 
         if (!validAmount(productDTO.getAmountLeft()) || !validPrice(productDTO.getPrice())) {
             throw new BadRequestException("Enter valid product data!");
@@ -101,12 +101,12 @@ public class ProductService {
         return p;
     }
 
-    private Brand getBrandFromDB(AddProductDTO productDTO) {
+    private Brand getBrandFromDB(ProductDTO productDTO) {
         Brand brand = brandRepository.findByBrandName(productDTO.getBrandName()).get();
         return brand;
     }
 
-    private SubCategory getSubCategoryFromDB(AddProductDTO productDTO) {
+    private SubCategory getSubCategoryFromDB(ProductDTO productDTO) {
         return subcategoryRepository.findSubCategoryBySubcategoryName(productDTO.getSubcategoryName()).get();
     }
 
@@ -141,7 +141,7 @@ public class ProductService {
         return amountLeft > 0;
     }
 
-    public ProductInCartDTO addToCart(AddProductToCartDTO addProductToCartDTO, long pid) {
+    public ProductInCartDTO addToCart(ProductForCartDTO productForCartDTO, long pid) {
         if (currentUser.getId() == null){
             throw new UnauthorizedException("User not logged in!");
         }
@@ -153,7 +153,7 @@ public class ProductService {
 
         CartKey cartKey = new CartKey(user.getId(), product.getId());
 
-        Cart cart = new Cart(cartKey, user, product, addProductToCartDTO.getQuantity());
+        Cart cart = new Cart(cartKey, user, product, productForCartDTO.getQuantity());
 
         user.getCartUser().add(cart);
 
@@ -163,7 +163,7 @@ public class ProductService {
 
         currentUser.addToCart(cart);
 
-        return new ProductInCartDTO(product.getName(), addProductToCartDTO.getQuantity());
+        return new ProductInCartDTO(product.getName(), productForCartDTO.getQuantity());
     }
 
     public ProductResponseDTO searchForProductByName(String productName) {
@@ -199,7 +199,7 @@ public class ProductService {
         Optional<Product> productOptional = productRepository.findById(pid);
         Optional<Characteristic> characteristicOptional = characteristicRepository.findCharacteristicByCharacteristicName(characteristicName);
 
-        if(productOptional.isEmpty() && characteristicOptional.isEmpty()) {
+        if(productOptional.isEmpty() || characteristicOptional.isEmpty()) {
             throw new BadRequestException("No such product or characteristicDTO!");
         }
 
@@ -215,7 +215,7 @@ public class ProductService {
         List<Chars> charsList = charsRepository.findAllByProduct(product);
         List<ResponseCharacteristicDTO> characteristicDTOS = charsList.stream()
                 .map(c -> mapper.map(c, ResponseCharacteristicDTO.class)).toList();
-        ProductWithCharacteristicsDTO productResponse = new ProductWithCharacteristicsDTO(product.getName(), new ArrayList<>());
+        ProductWithCharacteristicsDTO productResponse = new ProductWithCharacteristicsDTO(product.getId(),product.getName(), new ArrayList<>());
         for(ResponseCharacteristicDTO responseChars : characteristicDTOS){
             productResponse.getCharacteristics().add(responseChars);
         }
@@ -223,16 +223,13 @@ public class ProductService {
         return productResponse;
     }
 
-    //TODO
     public List<ProductResponseDTO> getProductBySubcategory(String subcategory) {
         Optional<SubCategory> subCategoryOptional = subcategoryRepository.findSubCategoryBySubcategoryName(subcategory);
-        if(subCategoryOptional.isPresent()){
-            List<Product> products = productRepository.findAllBySubcategory(subCategoryOptional.get());
-            return products.stream().map(p -> mapper.map(p,ProductResponseDTO.class)).toList();
-        }
-        else{
+        if(subCategoryOptional.isEmpty()) {
             throw new BadRequestException("No such subcategory!");
         }
+            List<Product> products = productRepository.findAllBySubcategory(subCategoryOptional.get());
+            return products.stream().map(p -> mapper.map(p,ProductResponseDTO.class)).toList();
     }
 
     public ProductForClientDTO getProduct(long pid) {
@@ -255,18 +252,16 @@ public class ProductService {
             throw new UnauthorizedException("User not logged in!");
         }
 
-        Product product = productRepository.findById(pid).orElseThrow(() -> new NotFoundException("Product not found"));
+        Product product = productRepository.findById(pid).orElseThrow(() -> new NotFoundException("Product not found!"));
 
-        User user = userRepository.findById(currentUser.getId()).orElseThrow(() -> new NotFoundException("Users not found"));
-
-        user.getSubscriptions().add(product);
+        User user = userRepository.findById(currentUser.getId()).orElseThrow(() -> new NotFoundException("User not found!"));
 
         product.getUsersSubscribed().add(user);
 
-        userRepository.save(user);
+        Long productId = productRepository.save(product).getId();
+        ProductWithNameDTO productDTO = mapper.map(product, ProductWithNameDTO.class);
+        productDTO.setId(productId);
 
-        productRepository.save(product);
-
-        return mapper.map(product, ProductWithNameDTO.class);
+        return productDTO;
     }
 }

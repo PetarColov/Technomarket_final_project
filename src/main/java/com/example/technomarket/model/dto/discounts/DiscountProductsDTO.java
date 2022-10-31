@@ -6,7 +6,6 @@ import java.util.List;
 
 @Data
 public class DiscountProductsDTO {
+    private Long discountId;
     private List<Long> products;
-    private String discountDescription;
-    private int discountPercent;
 }

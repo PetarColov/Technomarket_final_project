@@ -2,10 +2,12 @@ package com.example.technomarket.services;
 
 import com.example.technomarket.model.dto.imageDTOs.ImageDTO;
 import com.example.technomarket.model.exceptions.BadRequestException;
+import com.example.technomarket.model.exceptions.UnauthorizedException;
 import com.example.technomarket.model.pojo.Product;
 import com.example.technomarket.model.pojo.ProductImage;
 import com.example.technomarket.model.repository.ImageRepository;
 import com.example.technomarket.model.repository.ProductRepository;
+import com.example.technomarket.util.CurrentUser;
 import org.apache.commons.io.FilenameUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,9 +29,14 @@ public class ImageService {
     private ImageRepository imageRepository;
     @Autowired
     private ModelMapper modelMapper;
-
+    @Autowired
+    private CurrentUser currentUser;
 
     public List<ImageDTO> addImagesForProduct(long pid, MultipartFile[] multipartFile) {
+        if(!currentUser.checkAdmin()){
+            throw new UnauthorizedException("You don`t have permission for this operation!");
+        }
+
         Product product = productRepository.findById(pid).orElseThrow(() -> new BadRequestException("No such product!"));
         List <ImageDTO> imageDTOs = new ArrayList<>();
         for (MultipartFile m: multipartFile) {

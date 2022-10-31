@@ -15,7 +15,7 @@ public class ProductController extends AbstractController {
     private ProductService productService;
 
     @PostMapping("/add")
-    public ProductResponseDTO addProduct(@RequestBody AddProductDTO productDTO) {
+    public ProductResponseDTO addProduct(@RequestBody ProductDTO productDTO) {
         return productService.addProduct(productDTO);
     }
 
@@ -25,8 +25,8 @@ public class ProductController extends AbstractController {
     }
 
     @PostMapping("/addToCart/{pid}")
-    public ProductInCartDTO addToCart(@PathVariable long pid, @RequestBody AddProductToCartDTO addProductToCartDTO){
-        return productService.addToCart(addProductToCartDTO, pid);
+    public ProductInCartDTO addToCart(@PathVariable long pid, @RequestBody ProductForCartDTO productForCartDTO){
+        return productService.addToCart(productForCartDTO, pid);
     }
 
     @GetMapping("/search")
@@ -40,9 +40,8 @@ public class ProductController extends AbstractController {
         return productService.addCharacteristic(pid, characteristic);
     }
 
-    //TODO not working if subcategory has 2 words
-    @GetMapping("/get/{subcategory}")
-    public List<ProductResponseDTO> getProductBySubcategory(@PathVariable String subcategory){
+    @GetMapping("/find/subcat")
+    public List<ProductResponseDTO> getProductBySubcategory(@RequestParam(name = "name") String subcategory){
        return productService.getProductBySubcategory(subcategory);
     }
 
