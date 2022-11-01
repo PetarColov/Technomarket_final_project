@@ -7,7 +7,7 @@ import java.util.Set;
 
 @Data
 @Entity
-@Table(name = "product_characteristics")
+@Table(name = "product_characteristics", indexes = @Index(columnList = "characteristicName"))
 public class Characteristic {
 
     @Id

@@ -15,7 +15,7 @@ import java.nio.file.Files;
 import java.util.List;
 
 @RestController
-public class ImageController {
+public class ImageController extends AbstractController{
     @Autowired
     private ImageService imageService;
 

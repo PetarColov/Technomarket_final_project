@@ -31,7 +31,6 @@ public class Product {
     @OneToMany(mappedBy = "product", fetch = FetchType.EAGER)
     private Set<Cart> cartProduct;
 
-
     @ManyToMany(fetch = FetchType.EAGER)
     private List<User> usersSubscribed;
 

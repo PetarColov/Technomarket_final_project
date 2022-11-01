@@ -19,6 +19,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -53,8 +54,18 @@ public class DiscountService {
             throw new UnauthorizedException("You don`t have permission for this operation!");
         }
 
+        LocalDate startAt = requestDiscountDTO.getStartedAt();
+        LocalDate endAt = requestDiscountDTO.getEndedAt();
         int discountPercent = requestDiscountDTO.getDiscountPercent();
         String discountDescription = requestDiscountDTO.getDiscountDescription();
+
+        if(endAt.isBefore(startAt)){
+            throw new BadRequestException("Invalid duration entered!");
+        }
+
+        if(startAt.isBefore(LocalDate.now())){
+            throw new BadRequestException("This date has already passed!");
+        }
 
         Optional<Discount> discountOptional = discountRepository.findByDiscountDescriptionAndDiscountPercent(discountDescription,discountPercent);
         if(discountOptional.isEmpty()){

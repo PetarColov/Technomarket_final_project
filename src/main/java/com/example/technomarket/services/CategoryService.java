@@ -14,6 +14,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -41,48 +42,51 @@ public class CategoryService {
         }
         Optional<Category> optionalCategory = categoryRepository.findCategoryByName(category.getCategoryName());
         if(category.getCategoryName() != null && optionalCategory.isEmpty()){
-            categoryRepository.save(modelMapper.map(category, Category.class));
-            Optional<Category> c1 = categoryRepository.findCategoryByName(category.getCategoryName());
-            return modelMapper.map(c1.get(),ResponseCategoryDTO.class);
+            Long categoryId = categoryRepository.save(modelMapper.map(category, Category.class)).getCategoryId();
+            ResponseCategoryDTO categoryDTO = modelMapper.map(category,ResponseCategoryDTO.class);
+            categoryDTO.setCategoryId(categoryId);
+            return categoryDTO;
         }
         else{
             throw new BadRequestException("Invalid name of the category");
         }
     }
 
+    @Transactional
     public ResponseCategoryDTO deleteCategory(long id) {
         if(!currentUser.isAdmin()){
             throw new UnauthorizedException("You don`t have permission for this operation!");
         }
+
         Optional<Category> categoryOptional = categoryRepository.findCategoryByCategoryId(id);
-        if(categoryOptional.isPresent()){
-            List<SubCategory> subCategories = subcategoryRepository.findAllSubCategoryByCategory(categoryOptional.get());
-            subcategoryRepository.deleteAll(subCategories);
-            Category category = modelMapper.map(categoryOptional, Category.class);
-            ResponseCategoryDTO responseCategoryDTO = modelMapper.map(categoryOptional,ResponseCategoryDTO.class);
-            categoryRepository.delete(category);
-            return responseCategoryDTO;
-        }
-        else{
+        if(categoryOptional.isEmpty()) {
             throw new BadRequestException("This category does not exist!");
         }
+
+        List<SubCategory> subCategories = subcategoryRepository.findAllSubCategoryByCategory(categoryOptional.get());
+        subcategoryRepository.deleteAll(subCategories);
+        Category category = modelMapper.map(categoryOptional, Category.class);
+        ResponseCategoryDTO responseCategoryDTO = modelMapper.map(categoryOptional,ResponseCategoryDTO.class);
+        categoryRepository.delete(category);
+
+        return responseCategoryDTO;
     }
 
-    public ResponseCategoryDTO updateCategory(long cid, CategoryWithNewNameDTO category) {
+    @Transactional
+    public ResponseCategoryDTO updateCategory(long cid, CategoryWithNewNameDTO categoryDTO) {
         if(!currentUser.isAdmin()){
             throw new UnauthorizedException("You don`t have permission for this operation!");
         }
+
         Optional<Category> categoryOptional= categoryRepository.findCategoryByCategoryId(cid);
-        if(categoryOptional.isPresent()){
-            Category category1 = categoryOptional.get();
-            category1.setName(category.getNewCategoryName());
-            Category c = modelMapper.map(category1, Category.class);
-            ResponseCategoryDTO responseCategoryDTO = modelMapper.map(category1,ResponseCategoryDTO.class);
-            categoryRepository.save(c);
-            return responseCategoryDTO;
-        }
-        else{
+        if(categoryOptional.isEmpty()) {
             throw new BadRequestException("No such category!");
         }
+
+        Category category = categoryOptional.get();
+        category.setName(categoryDTO.getNewCategoryName());
+        categoryRepository.save(category);
+
+        return modelMapper.map(category,ResponseCategoryDTO.class);
     }
 }

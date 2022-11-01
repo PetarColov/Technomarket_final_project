@@ -14,6 +14,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -64,6 +65,7 @@ public class SubcategoryService {
             throw new BadRequestException("Such subcategory already exists");
         }
 
+        Category category = categoryOptional.get();
         SubCategory subCategory = modelMapper.map(subcategory,SubCategory.class);
         subCategory.setCategory(categoryOptional.get());
         SubCategory savedSubcategory = subcategoryRepository.save(subCategory);
@@ -71,6 +73,7 @@ public class SubcategoryService {
         return modelMapper.map(savedSubcategory, ResponseSubcategoryDTO.class);
     }
 
+    @Transactional
     public ResponseSubcategoryDTO editSubcategory(SubcategoryWithNewName subcategoryWithNewName){
         if(!currentUser.isAdmin()){
             throw new UnauthorizedException("You don`t have permission for this operation!");
@@ -88,6 +91,7 @@ public class SubcategoryService {
         return modelMapper.map(subCategory,ResponseSubcategoryDTO.class);
     }
 
+    @Transactional
     public ResponseSubcategoryDTO deleteSubcategory(SubcategoryWithNameOnly subcategoryWithNameOnly) {
         if(!currentUser.isAdmin()){
             throw new UnauthorizedException("You don`t have permission for this operation!");

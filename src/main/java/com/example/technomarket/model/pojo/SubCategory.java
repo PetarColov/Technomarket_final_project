@@ -21,6 +21,6 @@ public class SubCategory {
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
-    @OneToMany(mappedBy = "subcategory", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "subcategory", cascade = CascadeType.ALL)
     private List<Product> products;
 }

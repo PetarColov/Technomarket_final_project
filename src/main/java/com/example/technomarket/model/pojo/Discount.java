@@ -8,7 +8,7 @@ import java.util.Set;
 
 @Data
 @Entity
-@Table(name = "discounts")
+@Table(name = "discounts", indexes = @Index(columnList = "discountDescription, discountPercent"))
 public class Discount {
 
     @Id
