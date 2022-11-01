@@ -20,5 +20,4 @@ public class Category {
     @OneToMany(mappedBy = "category", orphanRemoval = true)
     private List<SubCategory> subCategory;
 
-
 }

@@ -155,9 +155,9 @@ public class ProductService {
 
         Cart cart = new Cart(cartKey, user, product, productForCartDTO.getQuantity());
 
-        user.getCartUser().add(cart);
-
-        product.getCartProduct().add(cart);
+//        user.getCartUser().add(cart);
+//
+//        product.getCartProduct().add(cart);
 
         cartRepository.save(cart);
 

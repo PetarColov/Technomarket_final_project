@@ -37,7 +37,7 @@ public class User {
     @Column(nullable = false)
     private LocalDate dateOfBirth;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "user")
     private Set<Cart> cartUser;
 
     @ManyToMany(mappedBy = "usersSubscribed", fetch = FetchType.EAGER)
