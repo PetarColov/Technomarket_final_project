@@ -68,11 +68,13 @@ public class UserService {
          }
          userRepository.save(user);
 
-        try {
-            sendEmail(user);
-        } catch (MessagingException | UnsupportedEncodingException e) {
-            throw new BadRequestException("Something with sending email went wrong!");
-        }
+         new Thread(() -> {
+            try {
+                sendEmail(user);
+            } catch (MessagingException | UnsupportedEncodingException e) {
+                throw new BadRequestException("Something with sending email went wrong!");
+            }
+        }).start();
 
         return mapper.map(user, UserWithoutPasswordDTO.class);
     }

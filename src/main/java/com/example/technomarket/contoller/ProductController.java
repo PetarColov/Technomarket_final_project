@@ -24,7 +24,7 @@ public class ProductController extends AbstractController {
         return productService.deleteProduct(pid);
     }
 
-    @PostMapping("/addToCart/{pid}")
+    @PostMapping("/add/{pid}/cart")
     public ProductInCartDTO addToCart(@PathVariable long pid, @RequestBody ProductForCartDTO productForCartDTO){
         return productService.addToCart(productForCartDTO, pid);
     }

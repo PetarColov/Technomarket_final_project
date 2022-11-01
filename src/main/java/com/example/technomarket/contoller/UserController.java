@@ -51,7 +51,7 @@ public class UserController extends AbstractController {
     }
 
 
-    @PostMapping("/editProfile")
+    @PostMapping("/edit_profile")
     public UserWithoutPasswordDTO editUser(@RequestBody EditUserDTO editUserDTO){
         return userService.editUser(editUserDTO);
     }

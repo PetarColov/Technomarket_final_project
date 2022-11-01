@@ -8,6 +8,7 @@ import com.example.technomarket.model.pojo.Cart;
 import com.example.technomarket.model.pojo.Product;
 import com.example.technomarket.model.pojo.User;
 import com.example.technomarket.model.repository.CartRepository;
+import com.example.technomarket.model.repository.ProductRepository;
 import com.example.technomarket.model.repository.UserRepository;
 import com.example.technomarket.util.CurrentUser;
 import org.modelmapper.ModelMapper;
@@ -29,6 +30,8 @@ public class OrderService {
     private CurrentUser currentUser;
     @Autowired
     private ModelMapper mapper;
+    @Autowired
+    private ProductRepository productRepository;
 
 
     @Transactional
@@ -49,16 +52,16 @@ public class OrderService {
             sum += (quantity*price);
         }
 
-//        finishOrderDTO.setProducts(allByUserId.stream().map(c -> mapper.map(c.getProduct(), ProductWithNameDTO.class)).toList());
-
         List<ProductFinishOrderDTO> list = new ArrayList<>();
 
         for (Cart cart : allByUserId) {
             Product product = cart.getProduct();
             int quantity = cart.getQuantity();
-
+            Long productId = cart.getProduct().getId();
+            Product product1 = productRepository.findById(productId).get();
+            product1.setAmountLeft(product1.getAmountLeft() - quantity);
+            productRepository.save(product1);
             list.add(new ProductFinishOrderDTO(product.getName(), product.getPrice(), quantity));
-
         }
 
         finishOrderDTO.setProducts(list);
